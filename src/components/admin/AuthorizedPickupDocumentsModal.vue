@@ -341,7 +341,8 @@ export default {
         }
 
         // Use fetch directly instead of api (which adds /api prefix)
-        const response = await fetch(`http://localhost:7000${webUrl}`);
+        const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+        const response = await fetch(`${API_BASE_URL}${webUrl}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -353,7 +354,8 @@ export default {
         console.log(`Successfully loaded ${type} document`);
       } catch (error) {
         console.error(`Error loading ${type} document:`, error);
-        console.error(`Failed URL: http://localhost:7000${this.convertPathToUrl(filename)}`);
+        const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+        console.error(`Failed URL: ${API_BASE_URL}${this.convertPathToUrl(filename)}`);
         // Don't throw here, just log the error for individual documents
       }
     },
@@ -396,7 +398,8 @@ export default {
 
       // Convert database path to web-accessible URL
       const webUrl = this.convertPathToUrl(filename);
-      const fullUrl = `http://localhost:7000${webUrl}`;
+      const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+      const fullUrl = `${API_BASE_URL}${webUrl}`;
       console.log(`Opening document: ${fullUrl}`);
 
       if (webUrl) {
