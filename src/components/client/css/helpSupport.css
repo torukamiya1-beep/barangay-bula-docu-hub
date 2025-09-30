@@ -1,0 +1,453 @@
+.help-support-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title i {
+  color: #90cdf4;
+}
+
+.page-description {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.action-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #3182ce;
+}
+
+.action-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.action-icon i {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.action-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.action-content p {
+  color: #718096;
+  margin: 0;
+}
+
+/* Content Sections */
+.content-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.section-title i {
+  color: #3182ce;
+}
+
+/* FAQ Styles */
+.faq-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.faq-category {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.category-title {
+  background: #f7fafc;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.faq-items {
+  padding: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item:hover {
+  background: #f7fafc;
+}
+
+.faq-question {
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.faq-question i {
+  transition: transform 0.3s ease;
+  color: #3182ce;
+}
+
+.faq-question i.rotated {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1rem 1.5rem;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+/* User Guides */
+.guides-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.guide-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.guide-card:hover {
+  border-color: #3182ce;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.guide-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.guide-icon i {
+  font-size: 1.25rem;
+  color: white;
+}
+
+.guide-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.guide-content p {
+  color: #718096;
+  margin-bottom: 1rem;
+}
+
+.guide-btn {
+  background: #3182ce;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.guide-btn:hover {
+  background: #2c5aa0;
+}
+
+/* Contact Information */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.contact-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  border-color: #3182ce;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.contact-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-icon i {
+  font-size: 1.25rem;
+  color: white;
+}
+
+.contact-info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.contact-info p {
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Office Hours */
+.hours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.hours-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.hours-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3182ce;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-item .day {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.schedule-item .time {
+  color: #3182ce;
+  font-weight: 500;
+}
+
+/* Document Fees Table */
+.fees-table {
+  overflow-x: auto;
+}
+
+.fees-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.fees-table th,
+.fees-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fees-table th {
+  background: #f7fafc;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.fees-table td {
+  color: #4a5568;
+}
+
+.fees-table tr:hover {
+  background: #f7fafc;
+}
+
+/* Emergency Section */
+.emergency-section {
+  margin-top: 2rem;
+}
+
+.emergency-card {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.emergency-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.emergency-icon i {
+  font-size: 2rem;
+  color: white;
+}
+
+.emergency-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.emergency-content p {
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.emergency-number {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .help-support-page {
+    padding: 1rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-grid,
+  .hours-grid,
+  .guides-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .emergency-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .contact-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}

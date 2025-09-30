@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residency Image Display Fix Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .test-section h2 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        .issue-description {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .solution-description {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: #f8f9ff;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .after {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Residency Image Display Fix</h1>
+        
+        <div class="test-section">
+            <h2>🚨 Problem Description</h2>
+            <div class="issue-description">
+                <h4>Issue:</h4>
+                <p><strong>Residency images not displaying in AdminUsers.vue</strong></p>
+                <ul>
+                    <li>Images exist in <code>D:\cap2_rhai_front_and_back\rhai_backend\uploads\residency</code></li>
+                    <li>Database records exist in <code>residency_documents</code> table</li>
+                    <li>But images don't show in the admin panel</li>
+                </ul>
+                
+                <h4>Root Cause:</h4>
+                <p><strong>Authentication Issue with Image Loading</strong></p>
+                <ul>
+                    <li>Backend endpoint <code>/api/residency/documents/:documentId/file</code> requires authentication</li>
+                    <li>Frontend uses <code>&lt;img src="url"&gt;</code> tags which don't send auth headers</li>
+                    <li>Browser blocks image loading due to 401 Unauthorized responses</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 Solution Implemented</h2>
+            <div class="solution-description">
+                <h4>Blob URL Approach with Authentication</h4>
+                <p>Instead of direct image URLs, we now:</p>
+                <ol>
+                    <li><strong>Fetch images as blobs</strong> with proper authentication headers</li>
+                    <li><strong>Create blob URLs</strong> from the fetched data</li>
+                    <li><strong>Use blob URLs</strong> in image tags (no auth required)</li>
+                    <li><strong>Clean up blob URLs</strong> to prevent memory leaks</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Implementation Details</h2>
+            
+            <h3>Before vs After</h3>
+            <div class="before-after">
+                <div class="before">
+                    <h4>❌ Before (Broken)</h4>
+                    <div class="code-block">
+// Direct URL approach (fails due to auth)
+getImageUrl(image) {
+  return `${API_URL}/residency/documents/${image.id}/file`;
+}
+
+// HTML
+&lt;img :src="getImageUrl(image)" /&gt;
+// ↑ Browser can't send auth headers
+// ↑ Results in 401 Unauthorized
+                    </div>
+                </div>
+                
+                <div class="after">
+                    <h4>✅ After (Fixed)</h4>
+                    <div class="code-block">
+// Blob URL approach (works with auth)
+async loadImageAsBlob(document) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(url, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
+// HTML
+&lt;img :src="blobUrl" /&gt;
+// ↑ Blob URL works without auth
+// ↑ Image displays correctly
+                    </div>
+                </div>
+            </div>
+
+            <h3>Key Changes Made</h3>
+            <div class="step">
+                <strong>1. Document Viewer Modal</strong>
+                <ul>
+                    <li>Updated <code>loadDocumentContent()</code> to use blob URLs for images</li>
+                    <li>Added <code>loadImageAsBlob()</code> method with authentication</li>
+                    <li>Added blob URL cleanup on modal close</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>2. Residency Images Grid</strong>
+                <ul>
+                    <li>Updated <code>loadSecureImageUrls()</code> to fetch images as blobs</li>
+                    <li>Added proper authentication headers to fetch requests</li>
+                    <li>Maintained existing error handling with canvas placeholders</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <strong>3. Memory Management</strong>
+                <ul>
+                    <li>Added <code>cleanupBlobUrls()</code> method</li>
+                    <li>Cleanup on component unmount</li>
+                    <li>Cleanup on modal close</li>
+                    <li>Prevents memory leaks from blob URLs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Testing Instructions</h2>
+            
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>✅ Backend server running on port 7000</li>
+                <li>✅ Database has residency documents for account 32 (Josh Mojicas)</li>
+                <li>✅ Image files exist in uploads/residency folder</li>
+                <li>✅ Frontend updated with blob URL implementation</li>
+            </ul>
+
+            <h3>Test Steps</h3>
+            <div class="step">
+                <strong>Step 1: Test Residency Documents Modal</strong>
+                <ol>
+                    <li>Open AdminUsers.vue in the admin panel</li>
+                    <li>Find Josh Mojicas (client_32) in the user list</li>
+                    <li>Click the "Residency" button to open residency documents modal</li>
+                    <li><span class="success">✅ Expected: Modal opens and loads documents</span></li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <strong>Step 2: Test Image Display in Grid</strong>
+                <ol>
+                    <li>In the residency documents modal, look for uploaded documents</li>
+                    <li>Check if document cards show with "View Document" buttons</li>
+                    <li><span class="success">✅ Expected: Document cards display correctly</span></li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <strong>Step 3: Test Document Viewer</strong>
+                <ol>
+                    <li>Click "View Document" on any image document</li>
+                    <li>Document viewer modal should open</li>
+                    <li><span class="success">✅ Expected: Image displays correctly in viewer</span></li>
+                    <li><span class="success">✅ Expected: Zoom controls work</span></li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <strong>Step 4: Test View User Modal Images</strong>
+                <ol>
+                    <li>Go back to user list</li>
+                    <li>Click "View" button on Josh Mojicas</li>
+                    <li>In the user details modal, click "View Uploaded Images"</li>
+                    <li><span class="success">✅ Expected: Images display in grid format</span></li>
+                    <li>Click on any image to view full size</li>
+                    <li><span class="success">✅ Expected: Full image opens in document viewer</span></li>
+                </ol>
+            </div>
+
+            <h3>Troubleshooting</h3>
+            <div class="step">
+                <strong>If images still don't display:</strong>
+                <ol>
+                    <li>Open browser developer tools (F12)</li>
+                    <li>Check Console tab for error messages</li>
+                    <li>Check Network tab for failed requests</li>
+                    <li>Verify authentication token exists in localStorage</li>
+                    <li>Check if backend endpoint returns 200 status</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Expected Results</h2>
+            
+            <h3>✅ Success Indicators</h3>
+            <ul>
+                <li><span class="success">✅ Residency images display correctly in both modals</span></li>
+                <li><span class="success">✅ Document viewer shows images with zoom controls</span></li>
+                <li><span class="success">✅ No 401 authentication errors in browser console</span></li>
+                <li><span class="success">✅ Images load smoothly without flickering</span></li>
+                <li><span class="success">✅ Memory usage remains stable (no blob URL leaks)</span></li>
+            </ul>
+
+            <h3>🔍 Technical Verification</h3>
+            <ul>
+                <li><strong>Network Tab:</strong> Should see successful blob fetches with auth headers</li>
+                <li><strong>Console:</strong> Should see "Secure blob URL created" messages</li>
+                <li><strong>Memory:</strong> Blob URLs should be cleaned up when modals close</li>
+                <li><strong>Performance:</strong> Images should load within 2-3 seconds</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🛡️ Security & Performance Notes</h2>
+            
+            <h3>Security Benefits</h3>
+            <ul>
+                <li><strong>Maintains Authentication:</strong> All image requests include proper auth headers</li>
+                <li><strong>No Token Exposure:</strong> Tokens aren't exposed in image URLs</li>
+                <li><strong>Access Control:</strong> Backend still enforces user permissions</li>
+            </ul>
+
+            <h3>Performance Considerations</h3>
+            <ul>
+                <li><strong>Memory Management:</strong> Blob URLs are properly cleaned up</li>
+                <li><strong>Caching:</strong> Images are cached as blobs during session</li>
+                <li><strong>Loading States:</strong> Proper loading indicators during fetch</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎉 Summary</h2>
+            <p>This fix resolves the residency image display issue by implementing a secure blob URL approach that:</p>
+            <ul>
+                <li>✅ <strong>Maintains security</strong> through proper authentication</li>
+                <li>✅ <strong>Enables image display</strong> in browser image tags</li>
+                <li>✅ <strong>Prevents memory leaks</strong> through proper cleanup</li>
+                <li>✅ <strong>Provides good UX</strong> with loading states and error handling</li>
+            </ul>
+            
+            <p><strong>The residency images should now display correctly in the AdminUsers.vue component!</strong></p>
+        </div>
+    </div>
+</body>
+</html>

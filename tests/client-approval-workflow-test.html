@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Approval Workflow Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .test-section h2 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        .console-output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .run-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .run-button:hover {
+            background: #2980b9;
+        }
+        .status-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .bg-success { background-color: #28a745; }
+        .bg-warning { background-color: #ffc107; color: #212529; }
+        .bg-info { background-color: #17a2b8; }
+        .bg-danger { background-color: #dc3545; }
+        .bg-secondary { background-color: #6c757d; }
+        .feature-demo {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+        }
+        .document-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .document-button:hover:not(.disabled) {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Client Approval Workflow Test</h1>
+        
+        <div class="test-section">
+            <h2>📋 Test Overview</h2>
+            <p>This test verifies the implementation of the client approval workflow:</p>
+            <ul>
+                <li>✅ Unapproved clients can log in but cannot access document request features</li>
+                <li>✅ Document request buttons are disabled for unapproved accounts</li>
+                <li>✅ Admins can approve/reject clients through the interface</li>
+                <li>✅ Status badges display correctly for different account states</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎮 Interactive Demo</h2>
+            
+            <h3>Client Status Simulation</h3>
+            <div class="feature-demo">
+                <p><strong>Pending Client (cannot request documents):</strong></p>
+                <button class="document-button disabled" disabled>Barangay Clearance</button>
+                <button class="document-button disabled" disabled>Cedula</button>
+                <button class="document-button disabled" disabled>My Requests</button>
+                <p><small>Account verification required to access document services</small></p>
+            </div>
+
+            <div class="feature-demo">
+                <p><strong>Active Client (can request documents):</strong></p>
+                <button class="document-button">Barangay Clearance</button>
+                <button class="document-button">Cedula</button>
+                <button class="document-button">My Requests</button>
+                <p><small>All document services are available</small></p>
+            </div>
+
+            <h3>Status Badges</h3>
+            <div class="status-demo">
+                <span class="status-badge bg-success">Active</span>
+                <span class="status-badge bg-info">Pending Residency Verification</span>
+                <span class="status-badge bg-danger">Residency Rejected</span>
+                <span class="status-badge bg-warning">Pending Verification</span>
+                <span class="status-badge bg-secondary">Inactive</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 Automated Tests</h2>
+            <button class="run-button" onclick="runTests()">Run All Tests</button>
+            <button class="run-button" onclick="clearConsole()">Clear Console</button>
+            
+            <div id="console-output" class="console-output">
+                Click "Run All Tests" to execute the automated test suite...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Implementation Summary</h2>
+            <h3>Changes Made:</h3>
+            <ul>
+                <li><strong>NewDocumentRequest.vue:</strong> Fixed isAccountActive computed property to check for 'active' status</li>
+                <li><strong>DocumentServicesSection.vue:</strong> Already had correct status checking logic</li>
+                <li><strong>AdminUsers.vue:</strong> Added quick approve/reject buttons and enhanced status options</li>
+                <li><strong>Backend:</strong> Already had complete residency verification API endpoints</li>
+            </ul>
+            
+            <h3>Key Features:</h3>
+            <ul>
+                <li>✅ Clients can log in regardless of approval status</li>
+                <li>✅ Document request buttons are disabled for unapproved clients</li>
+                <li>✅ Clear status messages inform users about account verification requirements</li>
+                <li>✅ Admins have multiple ways to approve/reject clients (quick buttons + detailed review)</li>
+                <li>✅ Status badges provide clear visual feedback</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="client-approval-workflow.test.js"></script>
+    <script>
+        function clearConsole() {
+            document.getElementById('console-output').textContent = '';
+        }
+
+        function runTests() {
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.textContent = '';
+            
+            // Override console.log to capture output
+            const originalLog = console.log;
+            console.log = function(...args) {
+                consoleOutput.textContent += args.join(' ') + '\n';
+                originalLog.apply(console, args);
+            };
+
+            // Run the tests
+            if (typeof runAllTests === 'function') {
+                runAllTests();
+            } else {
+                console.log('❌ Test functions not loaded properly');
+            }
+
+            // Restore original console.log
+            console.log = originalLog;
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>

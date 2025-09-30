@@ -1,0 +1,893 @@
+/* Modern Clean Sidebar Styles */
+.dashboard-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+  border-right: 1px solid rgba(251, 191, 36, 0.2);
+  will-change: transform, width;
+}
+
+.dashboard-sidebar.collapsed {
+  width: 70px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+/* Sidebar Logo */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.logo-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.logo-image {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #fbbf24;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  flex-shrink: 0;
+  background-color: #fbbf24;
+  display: block;
+}
+
+.logo-text {
+  margin-left: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.logo-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.logo-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Mobile Close Button */
+.mobile-close-btn {
+  display: flex; /* Show on all screens for testing */
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.mobile-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  transform: scale(1.05);
+}
+
+.mobile-close-btn:active {
+  transform: scale(0.95);
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Hide on desktop (will be changed back to mobile-only later) */
+@media (min-width: 769px) {
+  .mobile-close-btn {
+    display: none;
+  }
+}
+
+/* Collapsed state adjustments */
+.dashboard-sidebar.collapsed .sidebar-logo {
+  justify-content: center;
+  padding: 1rem 0.5rem;
+}
+
+.dashboard-sidebar.collapsed .logo-content {
+  justify-content: center;
+}
+
+.dashboard-sidebar.collapsed .logo-text {
+  display: none;
+}
+
+/* Don't hide close button on mobile even when collapsed */
+@media (min-width: 769px) {
+  .dashboard-sidebar.collapsed .mobile-close-btn {
+    display: none;
+  }
+}
+
+/* Mobile-specific logo text visibility */
+.logo-text.mobile-show {
+  display: block !important;
+}
+
+.logo-text.desktop-hide {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .logo-text.mobile-show {
+    display: block !important;
+    opacity: 1;
+    width: auto;
+    margin: 0;
+    overflow: visible;
+  }
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dashboard-sidebar.collapsed .sidebar-nav {
+  overflow: hidden;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  margin: 0 1rem;
+}
+
+.dashboard-sidebar.collapsed .nav-item {
+  margin: 0 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+  position: relative;
+  justify-content: flex-start;
+  min-height: 48px;
+}
+
+.dashboard-sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 1rem 0.5rem;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fbbf24;
+  text-decoration: none;
+}
+
+.dashboard-sidebar.collapsed .nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link.active {
+  background: #fbbf24;
+  color: #1e3a8a;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-text {
+  margin-left: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 1;
+  transition: all 0.3s ease;
+  letter-spacing: 0.025em;
+}
+
+.dashboard-sidebar.collapsed .nav-text {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  overflow: hidden;
+  display: none;
+}
+
+/* Show nav text on mobile even when collapsed */
+@media (max-width: 768px) {
+  .dashboard-sidebar .nav-text {
+    opacity: 1 !important;
+    width: auto !important;
+    margin-left: 1rem !important;
+    overflow: visible !important;
+    display: inline !important;
+  }
+}
+
+.nav-content {
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.dashboard-sidebar.collapsed .nav-content {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  overflow: hidden;
+  display: none;
+}
+
+/* Show nav content on mobile even when collapsed */
+@media (max-width: 768px) {
+  .dashboard-sidebar .nav-content {
+    opacity: 1 !important;
+    width: auto !important;
+    margin-left: 1rem !important;
+    overflow: visible !important;
+    display: flex !important;
+  }
+}
+
+.nav-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 14px;
+  min-width: 24px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link.active .nav-badge {
+  background: rgba(30, 58, 138, 0.25);
+  color: #1e3a8a;
+}
+
+/* Bottom Section */
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 0 1rem 0;
+}
+
+/* Enhanced Logout Section */
+.logout-section {
+  position: relative;
+  margin: 0 1rem;
+}
+
+/* Enhanced Logout Button */
+.logout-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid #f87171;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: inherit;
+  text-align: left;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Collapsed logout button */
+.logout-btn.collapsed {
+  padding: 1rem;
+  justify-content: center;
+  gap: 0;
+  border-radius: 20px;
+  min-height: 56px;
+}
+
+/* Logout button hover effects */
+.logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-color: #ef4444;
+  color: white;
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Expanded logout hover effect */
+.client-sidebar:not(.collapsed) .logout-btn:hover {
+  transform: translateY(-2px) translateX(4px);
+}
+
+/* Collapsed logout hover effect */
+.client-sidebar.collapsed .logout-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Logout button active state */
+.logout-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+
+/* Logout Icon Container */
+.logout-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.logout-btn:hover .logout-icon-container {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Logout Icon */
+.logout-icon {
+  font-size: 1.1rem;
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.logout-btn:hover .logout-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Logout Ripple Effect */
+.logout-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s ease;
+  opacity: 0;
+}
+
+.logout-btn:hover .logout-ripple {
+  width: 40px;
+  height: 40px;
+  opacity: 1;
+}
+
+/* Logout Content */
+.logout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  transition: all 0.3s ease;
+}
+
+.logout-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  line-height: 1.2;
+  transition: all 0.3s ease;
+}
+
+.logout-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  line-height: 1.2;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover .logout-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Logout Arrow */
+.logout-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.logout-btn:hover .logout-arrow {
+  color: white;
+  transform: translateX(4px);
+}
+
+/* Collapsed state adjustments */
+.client-sidebar.collapsed .logout-content,
+.client-sidebar.collapsed .logout-arrow {
+  opacity: 0;
+  transform: translateX(-20px);
+  width: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* Tooltip for collapsed state */
+.dashboard-sidebar.collapsed .nav-link {
+  position: relative;
+}
+
+.dashboard-sidebar.collapsed .nav-link::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.dashboard-sidebar.collapsed .nav-link:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Enhanced Mobile Overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  touch-action: none;
+}
+
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Prevent body scroll when overlay is active */
+body.sidebar-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Enhanced overlay animation */
+@media (max-width: 768px) {
+  .mobile-overlay {
+    animation-duration: 0.3s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-overlay.active {
+    animation-name: fadeIn;
+  }
+
+  .mobile-overlay:not(.active) {
+    animation-name: fadeOut;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+/* Enhanced Mobile-First Responsive Design */
+
+/* Tablet and larger screens */
+@media (min-width: 769px) {
+  .dashboard-sidebar {
+    transform: translateX(0);
+  }
+
+  .mobile-overlay {
+    display: none;
+  }
+}
+
+/* Mobile and tablet portrait */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+    z-index: 1003; /* Higher than header (1001) and dropdowns (1002) to appear above them */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dashboard-sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  .dashboard-sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* Enhanced touch targets for mobile */
+  .nav-link {
+    padding: 1.25rem 1rem;
+    min-height: 56px;
+    font-size: 1rem;
+    border-radius: 12px;
+    margin: 0.25rem 0.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-link:active::before {
+    opacity: 1;
+  }
+
+  .nav-icon {
+    font-size: 1.3rem;
+    width: 28px;
+    text-align: center;
+  }
+
+  .nav-text {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 1rem;
+  }
+
+  /* Enhanced logo section */
+  .sidebar-logo {
+    padding: 1.25rem 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    /* Ensure logo is always visible on mobile when sidebar is open */
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  .mobile-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .logo-image {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .logo-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .logo-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.9;
+  }
+
+  /* Enhanced navigation badges */
+  .nav-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 16px;
+    min-width: 26px;
+  }
+
+  /* Better scrolling on mobile */
+  .sidebar-nav {
+    padding: 1rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Enhanced bottom section */
+  .sidebar-bottom {
+    padding: 1rem 0 1.5rem 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Logout section responsive */
+  .logout-section {
+    margin: 0 0.75rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .dashboard-sidebar {
+    width: min(100vw, 300px);
+    max-width: 300px;
+  }
+
+  .nav-link {
+    padding: 1rem 0.875rem;
+    min-height: 52px;
+    margin: 0.2rem 0.5rem;
+  }
+
+  .nav-icon {
+    font-size: 1.25rem;
+    width: 26px;
+  }
+
+  .nav-text {
+    font-size: 0.95rem;
+    margin-left: 0.875rem;
+  }
+
+  .sidebar-logo {
+    padding: 1rem 0.875rem;
+  }
+
+  .mobile-close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  .logo-image {
+    width: 38px;
+    height: 38px;
+  }
+
+  .logo-title {
+    font-size: 1rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .nav-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+    min-width: 24px;
+  }
+
+  .sidebar-nav {
+    padding: 0.75rem 0;
+  }
+
+  .sidebar-bottom {
+    padding: 0.75rem 0 1.25rem 0;
+  }
+
+  .logout-section {
+    margin: 0 0.5rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .dashboard-sidebar {
+    width: 100vw;
+    max-width: 280px;
+  }
+
+  .nav-link {
+    padding: 0.875rem 0.75rem;
+    min-height: 48px;
+    margin: 0.15rem 0.4rem;
+  }
+
+  .nav-icon {
+    font-size: 1.2rem;
+    width: 24px;
+  }
+
+  .nav-text {
+    font-size: 0.9rem;
+    margin-left: 0.75rem;
+  }
+
+  .sidebar-logo {
+    padding: 0.875rem 0.75rem;
+  }
+
+  .mobile-close-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+
+  .logo-image {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-title {
+    font-size: 0.95rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.7rem;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .sidebar-logo {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-link {
+    padding: 0.875rem 1rem;
+    min-height: 44px;
+  }
+
+  .sidebar-nav {
+    padding: 0.5rem 0;
+  }
+
+  .sidebar-bottom {
+    padding: 0.5rem 0 1rem 0;
+  }
+
+  .logo-image {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-title {
+    font-size: 0.9rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.7rem;
+  }
+}
+
+/* Scrollbar Styling */
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Focus states for accessibility */
+.nav-link:focus,
+.sidebar-toggle-btn:focus {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}

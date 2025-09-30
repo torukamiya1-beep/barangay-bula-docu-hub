@@ -1,0 +1,39 @@
+# Files to ignore during Vercel deployment
+node_modules/
+.git/
+.gitignore
+
+# Local environment files
+.env.local
+.env.*.local
+
+# Test files
+tests/
+*.test.js
+*.spec.js
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+test_*.js
+test_*.html
+debug-console.js
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+

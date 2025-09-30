@@ -1,0 +1,991 @@
+/* Enhanced Mobile-First Client Registration Styles */
+.client-registration {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 1rem;
+}
+
+.registration-container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.card {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: none;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  margin-bottom: 2rem;
+}
+
+.card-header {
+  border-radius: 20px 20px 0 0 !important;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  color: white;
+  padding: 2rem 1.5rem;
+  border: none;
+  text-align: center;
+}
+
+.card-header h4 {
+  margin: 0 0 1rem 0;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 2rem 1.5rem !important;
+}
+
+/* Enhanced Step Indicator Styles */
+.steps-container {
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+}
+
+.steps-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.step-number {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 3px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 80px;
+  word-wrap: break-word;
+}
+
+.step-indicator.active .step-number {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-color: #fbbf24;
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+}
+
+.step-indicator.active .step-label {
+  color: #007bff;
+  font-weight: 700;
+}
+
+.step-indicator.completed .step-number {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border-color: #28a745;
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+}
+
+.step-indicator.completed .step-number::before {
+  content: '✓';
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.step-indicator.completed .step-label {
+  color: #28a745;
+  font-weight: 700;
+}
+
+.step-line {
+  flex: 1;
+  height: 4px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  margin: 0 1rem;
+  margin-top: 24px;
+  border-radius: 2px;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.step-line.active {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.step-line.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Enhanced Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-control {
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
+  background: #f8faff;
+  transform: translateY(-1px);
+}
+
+.form-control::placeholder {
+  color: #adb5bd;
+  font-size: 0.95rem;
+}
+
+.form-select {
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
+  background: #f8faff;
+  transform: translateY(-1px);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline-secondary {
+  border: 2px solid #6c757d;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #6c757d;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: #6c757d;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Enhanced Alert Styles */
+.alert {
+  border-radius: 12px;
+  border: none;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.alert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+
+.alert-danger::before {
+  background: #dc3545;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d1edff 0%, #b8daff 100%);
+  color: #0c5460;
+}
+
+.alert-success::before {
+  background: #28a745;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+}
+
+.alert-warning::before {
+  background: #ffc107;
+}
+
+/* Enhanced Animation for step transitions */
+.step-content {
+  animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+/* Enhanced Input group styles */
+.input-group {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);
+}
+
+.input-group .btn {
+  border-radius: 0 12px 12px 0;
+  border: 2px solid #007bff;
+  border-left: none;
+  padding: 1rem 1.25rem;
+}
+
+.input-group .form-control {
+  border-radius: 12px 0 0 12px;
+  border-right: none;
+}
+
+/* Enhanced Success icon animation */
+.success-icon {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  color: #28a745;
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(-10deg);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.9) rotate(5deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Progress bar for steps */
+.step-progress {
+  width: 100%;
+  height: 6px;
+  background: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.step-progress-bar {
+  height: 100%;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.step-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced Mobile-First Responsive Design */
+
+/* Tablet and larger screens */
+@media (min-width: 769px) {
+  .client-registration {
+    padding: 2rem;
+  }
+
+  .registration-container {
+    max-width: 650px;
+  }
+
+  .card-body {
+    padding: 2.5rem 2rem !important;
+  }
+
+  .steps-wrapper {
+    padding: 1rem 0;
+  }
+
+  .step-indicator {
+    min-width: 100px;
+  }
+
+  .step-number {
+    width: 52px;
+    height: 52px;
+    font-size: 1.1rem;
+  }
+
+  .step-label {
+    font-size: 0.85rem;
+    max-width: 100px;
+  }
+}
+
+/* Mobile and tablet portrait */
+@media (max-width: 768px) {
+  .client-registration {
+    padding: 1rem 0.75rem;
+    min-height: 100vh;
+  }
+
+  .registration-container {
+    max-width: 100%;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+    border-radius: 16px;
+  }
+
+  .card-header {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .card-header h4 {
+    font-size: clamp(1.1rem, 5vw, 1.3rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .card-body {
+    padding: 1.5rem 1.25rem !important;
+  }
+
+  /* Enhanced step indicators for mobile */
+  .steps-container {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 0;
+  }
+
+  .steps-wrapper {
+    padding: 0.25rem 0;
+    justify-content: space-between;
+  }
+
+  .step-indicator {
+    min-width: 70px;
+    margin: 0 0.25rem;
+  }
+
+  .step-number {
+    width: 42px;
+    height: 42px;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+    max-width: 70px;
+    line-height: 1.1;
+  }
+
+  .step-line {
+    margin: 0 0.5rem;
+    margin-top: 21px;
+    height: 3px;
+  }
+
+  /* Enhanced form elements for mobile */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-control,
+  .form-select {
+    padding: 1rem 1.125rem;
+    font-size: 1rem;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .input-group {
+    border-radius: 10px;
+  }
+
+  .input-group .btn {
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.125rem;
+  }
+
+  .input-group .form-control {
+    border-radius: 10px 0 0 10px;
+  }
+
+  .alert {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .success-icon {
+    font-size: 3.5rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .client-registration {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .card-header {
+    padding: 1.25rem 1rem;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .card-header h4 {
+    font-size: clamp(1rem, 5.5vw, 1.2rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-body {
+    padding: 1.25rem 1rem !important;
+  }
+
+  /* Compact step indicators */
+  .steps-container {
+    margin-bottom: 1.25rem;
+    padding: 0.5rem 0;
+  }
+
+  .step-indicator {
+    min-width: 60px;
+    margin: 0 0.125rem;
+  }
+
+  .step-number {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
+    max-width: 60px;
+  }
+
+  .step-line {
+    margin: 0 0.25rem;
+    margin-top: 18px;
+    height: 2px;
+  }
+
+  /* Compact form elements */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-control,
+  .form-select {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+
+  .input-group {
+    border-radius: 8px;
+  }
+
+  .input-group .btn {
+    border-radius: 0 8px 8px 0;
+    padding: 0.875rem 1rem;
+  }
+
+  .input-group .form-control {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .alert {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .success-icon {
+    font-size: 3rem;
+  }
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .client-registration {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .card-header {
+    padding: 1rem 0.875rem;
+  }
+
+  .card-header h4 {
+    font-size: clamp(0.95rem, 6vw, 1.1rem);
+  }
+
+  .card-body {
+    padding: 1rem 0.875rem !important;
+  }
+
+  /* Extra compact step indicators */
+  .step-indicator {
+    min-width: 50px;
+    margin: 0;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .step-label {
+    font-size: 0.65rem;
+    max-width: 50px;
+  }
+
+  .step-line {
+    margin: 0 0.125rem;
+    margin-top: 16px;
+  }
+
+  .form-control,
+  .form-select {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+    min-height: 40px;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    min-height: 40px;
+  }
+
+  .input-group .btn {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .alert {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .success-icon {
+    font-size: 2.5rem;
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+  .client-registration {
+    padding: 0.5rem;
+  }
+
+  .card-header {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+
+  .card-body {
+    padding: 1rem 1.25rem !important;
+  }
+
+  .steps-container {
+    margin-bottom: 1rem;
+    padding: 0.25rem 0;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .step-label {
+    font-size: 0.65rem;
+  }
+
+  .step-line {
+    margin-top: 16px;
+    height: 2px;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary {
+    padding: 0.75rem 1.25rem;
+  }
+
+  .success-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .step-number {
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-primary {
+    box-shadow: 0 3px 12px rgba(0, 123, 255, 0.35);
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.18);
+  }
+}
+
+/* Address and Residency Section Improvements */
+.address-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid #3b82f6;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.residency-section {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid #10b981;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.address-selector-wrapper {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.address-section h6,
+.residency-section h6 {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.address-section h6 i,
+.residency-section h6 i {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Enhanced form controls for address sections */
+.address-section .form-control,
+.address-section .form-select,
+.residency-section .form-control,
+.residency-section .form-select {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.address-section .form-control:focus,
+.address-section .form-select:focus,
+.residency-section .form-control:focus,
+.residency-section .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+  background-color: #fefefe;
+}
+
+/* Responsive improvements for address sections */
+@media (max-width: 768px) {
+  .address-section,
+  .residency-section {
+    padding: 1rem;
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+  }
+
+  .address-selector-wrapper {
+    padding: 1rem;
+  }
+
+  .address-section h6,
+  .residency-section h6 {
+    font-size: 1rem;
+  }
+}
+
+/* Verification Method Cards */
+.verification-method-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  height: 100%;
+}
+
+.verification-method-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
+}
+
+.verification-method-card .card-body {
+  padding: 1.5rem !important;
+}
+
+.verification-method-card .card-title {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.verification-method-card .card-text {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.verification-method-card i {
+  transition: all 0.3s ease;
+}
+
+.verification-method-card:hover i {
+  transform: scale(1.1);
+}
+
+/* Enhanced Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .step-indicator .step,
+  .btn,
+  .form-control,
+  .alert,
+  .verification-method-card {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .verification-method-card:hover {
+    transform: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .client-registration {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .btn {
+    display: none !important;
+  }
+}

@@ -1,0 +1,176 @@
+<html lang="en">
+  <head>
+    <title>Login | Admin Panel</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+      body {
+        background-color: #222a32;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      #app {
+        border: 1px solid #a75a1a;
+        padding: 1.5rem 2rem;
+        width: 320px;
+        background-color: transparent;
+        color: white;
+      }
+      .form-control::placeholder {
+        color: #d1d5db;
+        font-weight: 600;
+        font-size: 0.75rem;
+      }
+      .btn-login {
+        background-color: #e67e22;
+        font-weight: 700;
+        font-size: 0.875rem;
+        border: none;
+      }
+      .btn-login:hover {
+        background-color: #d46f1b;
+      }
+      .links a {
+        color: #5a8bbd;
+        font-size: 0.75rem;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .icon {
+        color: white;
+        font-size: 1.25rem;
+        width: 1.5rem;
+        text-align: center;
+      }
+      .input-group-text {
+        background: transparent;
+        border: none;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .logo {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0.5rem;
+      }
+      .header-text {
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .title {
+        font-weight: 700;
+        font-size: 1rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <img
+        src="/icon-192.png"
+        alt="Barangay Bula Council official seal"
+        class="logo mx-auto d-block"
+      />
+      <div class="header-text">
+        BARANGAY ONLINE SYSTEM FOR DOCUMENT REQUESTS
+      </div>
+      <div class="border border-3 border-warning p-4 rounded-0">
+        <div class="title">Login | Admin Panel</div>
+        <form @submit.prevent="handleLogin">
+          <div class="mb-3 d-flex align-items-center">
+            <span class="icon"><i class="fas fa-user"></i></span>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Username"
+              v-model="username"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div class="mb-3 d-flex align-items-center">
+            <span class="icon"><i class="fas fa-lock"></i></span>
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              class="form-control form-control-sm"
+              placeholder="Password"
+              v-model="password"
+              autocomplete="current-password"
+              required
+            />
+            <span
+              class="icon ms-2"
+              style="cursor: pointer"
+              @click="togglePassword"
+              :title="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </span>
+          </div>
+          <button type="submit" class="btn btn-login w-100 mb-3">Login</button>
+        </form>
+        <div class="text-center links">
+          <a href="#" @click.prevent="forgotPassword">Forgot Password?</a>
+          <span> | </span>
+          <a href="#" @click.prevent="manageAccount">Manage Account</a>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            username: "",
+            password: "",
+            showPassword: false,
+          };
+        },
+        methods: {
+          togglePassword() {
+            this.showPassword = !this.showPassword;
+          },
+          handleLogin() {
+            alert(
+              `Logging in with\nUsername: ${this.username}\nPassword: ${this.password}`
+            );
+            // Here you can add your login logic or API call
+          },
+          forgotPassword() {
+            alert("Redirect to forgot password page or show modal.");
+          },
+          manageAccount() {
+            alert("Redirect to manage account page or show modal.");
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

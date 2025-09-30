@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Generation Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>PDF Generation Test</h1>
+    <button onclick="generateTestPDF()">Generate Test PDF</button>
+
+    <script>
+        function generateTestPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            // Test data similar to our transaction
+            const transactionData = {
+                receipt_number: 'RCP-253216-000086',
+                client_name: 'Rhaijana Abdilah',
+                document_type: 'Barangay Clearance',
+                amount: '150.00',
+                payment_method: 'Online Payment',
+                receipt_date: new Date().toISOString(),
+                payment_status: 'succeeded'
+            };
+            
+            // Set up fonts and colors
+            const primaryColor = [45, 55, 72]; // #2d3748
+            const accentColor = [102, 126, 234]; // #667eea
+            const textColor = [74, 85, 104]; // #4a5568
+            
+            // Header
+            pdf.setFillColor(...primaryColor);
+            pdf.rect(0, 0, 210, 40, 'F');
+            
+            // Title
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(24);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('PAYMENT RECEIPT', 105, 20, { align: 'center' });
+            
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('Barangay Online Services for Document Requests', 105, 30, { align: 'center' });
+            
+            // Reset text color
+            pdf.setTextColor(...textColor);
+            
+            // Receipt Information Section
+            let yPos = 60;
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(...accentColor);
+            pdf.text('Receipt Information', 20, yPos);
+            
+            yPos += 15;
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(...textColor);
+            
+            const receiptInfo = [
+                ['Receipt Number:', transactionData.receipt_number],
+                ['Client Name:', transactionData.client_name],
+                ['Document Type:', transactionData.document_type],
+                ['Amount:', `₱${transactionData.amount}`],
+                ['Payment Method:', transactionData.payment_method],
+                ['Status:', transactionData.payment_status]
+            ];
+            
+            receiptInfo.forEach(([label, value]) => {
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(label, 20, yPos);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(value, 80, yPos);
+                yPos += 8;
+            });
+            
+            // Footer
+            yPos = 270;
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(128, 128, 128);
+            pdf.text('This is a computer-generated receipt. No signature required.', 105, yPos, { align: 'center' });
+            pdf.text(`Generated on: ${new Date().toLocaleString()}`, 105, yPos + 8, { align: 'center' });
+            
+            // Generate filename
+            const filename = `Test_Receipt_${transactionData.receipt_number}_${new Date().toISOString().split('T')[0]}.pdf`;
+            
+            // Save the PDF
+            pdf.save(filename);
+            
+            alert('PDF generated successfully!');
+        }
+    </script>
+</body>
+</html>
