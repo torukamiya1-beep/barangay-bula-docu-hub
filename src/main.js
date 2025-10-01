@@ -18,12 +18,18 @@ import '@fortawesome/fontawesome-free/js/all.js'
 // Import and initialize unified auth service
 import unifiedAuthService from './services/unifiedAuthService'
 import clientAuthService from './services/clientAuthService'
+import adminAuthService from './services/adminAuthService'
 
 // Initialize unified authentication service with error handling
 try {
   // First migrate any legacy client auth
   if (clientAuthService && typeof clientAuthService.migrateLegacyAuth === 'function') {
     clientAuthService.migrateLegacyAuth()
+  }
+
+  // Migrate any legacy admin auth
+  if (adminAuthService && typeof adminAuthService.migrateLegacyAuth === 'function') {
+    adminAuthService.migrateLegacyAuth()
   }
 
   // Then initialize unified auth
