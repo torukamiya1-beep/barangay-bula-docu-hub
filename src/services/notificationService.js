@@ -16,7 +16,21 @@ class ContextualNotificationService {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
     this.maxReconnectDelay = 30000;
-    this.baseURL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
+    // Ensure the API URL always has the protocol
+    let baseURL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
+
+    // Fix: If the URL doesn't start with http:// or https://, add https://
+    if (baseURL && !baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
+      baseURL = `https://${baseURL}`;
+      console.warn('⚠️ Notification Service API URL was missing protocol, added https://', baseURL);
+    }
+
+    // Ensure the API URL ends with /api
+    if (!baseURL.endsWith('/api')) {
+      baseURL = `${baseURL}/api`;
+    }
+
+    this.baseURL = baseURL;
     this.isConnecting = false;
     this.pollingInterval = null;
     this.reconnectTimer = null;

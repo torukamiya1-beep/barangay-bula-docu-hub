@@ -341,7 +341,18 @@ export default {
         }
 
         // Use fetch directly instead of api (which adds /api prefix)
-        const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+        let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
+
+        // Fix: If the URL doesn't start with http:// or https://, add https://
+        if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+          API_BASE_URL = `https://${API_BASE_URL}`;
+        }
+
+        // Remove /api suffix if present since we're accessing static files
+        if (API_BASE_URL.endsWith('/api')) {
+          API_BASE_URL = API_BASE_URL.replace('/api', '');
+        }
+
         const response = await fetch(`${API_BASE_URL}${webUrl}`);
 
         if (!response.ok) {
@@ -354,7 +365,18 @@ export default {
         console.log(`Successfully loaded ${type} document`);
       } catch (error) {
         console.error(`Error loading ${type} document:`, error);
-        const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+        let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
+
+        // Fix: If the URL doesn't start with http:// or https://, add https://
+        if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+          API_BASE_URL = `https://${API_BASE_URL}`;
+        }
+
+        // Remove /api suffix if present since we're accessing static files
+        if (API_BASE_URL.endsWith('/api')) {
+          API_BASE_URL = API_BASE_URL.replace('/api', '');
+        }
+
         console.error(`Failed URL: ${API_BASE_URL}${this.convertPathToUrl(filename)}`);
         // Don't throw here, just log the error for individual documents
       }
@@ -398,7 +420,18 @@ export default {
 
       // Convert database path to web-accessible URL
       const webUrl = this.convertPathToUrl(filename);
-      const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+      let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
+
+      // Fix: If the URL doesn't start with http:// or https://, add https://
+      if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+        API_BASE_URL = `https://${API_BASE_URL}`;
+      }
+
+      // Remove /api suffix if present since we're accessing static files
+      if (API_BASE_URL.endsWith('/api')) {
+        API_BASE_URL = API_BASE_URL.replace('/api', '');
+      }
+
       const fullUrl = `${API_BASE_URL}${webUrl}`;
       console.log(`Opening document: ${fullUrl}`);
 

@@ -65,7 +65,18 @@ class ResidencyService {
    */
   getDocumentFileUrl(documentId) {
     // Use the API base URL to construct the full URL
-    const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
+    let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
+
+    // Fix: If the URL doesn't start with http:// or https://, add https://
+    if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+      API_BASE_URL = `https://${API_BASE_URL}`;
+    }
+
+    // Ensure the API URL ends with /api
+    if (!API_BASE_URL.endsWith('/api')) {
+      API_BASE_URL = `${API_BASE_URL}/api`;
+    }
+
     return `${API_BASE_URL}/residency/documents/${documentId}/file`;
   }
 
