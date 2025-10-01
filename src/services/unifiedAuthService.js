@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
+// Ensure the API URL always has the protocol
+let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
+
+// Fix: If the URL doesn't start with http:// or https://, add https://
+if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+  API_BASE_URL = `https://${API_BASE_URL}`;
+  console.warn('⚠️ API URL was missing protocol, added https://', API_BASE_URL);
+}
+
+console.log('🔗 API Base URL:', API_BASE_URL);
 
 class UnifiedAuthService {
   // Clear invalid authentication data
