@@ -16,21 +16,7 @@ class ContextualNotificationService {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
     this.maxReconnectDelay = 30000;
-    // Ensure the API URL always has the protocol
-    let baseURL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
-
-    // Fix: If the URL doesn't start with http:// or https://, add https://
-    if (baseURL && !baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
-      baseURL = `https://${baseURL}`;
-      console.warn('⚠️ Notification Service API URL was missing protocol, added https://', baseURL);
-    }
-
-    // Ensure the API URL ends with /api
-    if (!baseURL.endsWith('/api')) {
-      baseURL = `${baseURL}/api`;
-    }
-
-    this.baseURL = baseURL;
+    this.baseURL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
     this.isConnecting = false;
     this.pollingInterval = null;
     this.reconnectTimer = null;
@@ -260,7 +246,8 @@ class ContextualNotificationService {
   startAuthStateMonitoring() {
     // Monitor localStorage changes for token updates
     window.addEventListener('storage', (event) => {
-      if (event.key === 'auth_token' || event.key === 'auth_user') {
+      if (event.key === 'adminToken' || event.key === 'clientToken' ||
+          event.key === 'adminData' || event.key === 'clientData') {
         console.log('🔍 Authentication storage changed:', event.key);
         setTimeout(() => this.handleAuthStateChange(), 100);
       }
@@ -270,7 +257,8 @@ class ContextualNotificationService {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function(key, value) {
       originalSetItem.call(this, key, value);
-      if (key === 'auth_token' || key === 'auth_user') {
+      if (key === 'adminToken' || key === 'clientToken' ||
+          key === 'adminData' || key === 'clientData') {
         setTimeout(() => {
           if (window.__notificationServiceInstance) {
             window.__notificationServiceInstance.handleAuthStateChange();
@@ -415,9 +403,11 @@ class ContextualNotificationService {
   /**
    * Poll for new notifications and updates
    */
-  async pollNotifications(userType = 'admin') {
+  async pollNotifications() {
     try {
-      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const token = this.userType === 'admin'
+        ? localStorage.getItem('adminToken')
+        : localStorage.getItem('clientToken');
 
       if (!token) return;
 
@@ -814,7 +804,7 @@ class ContextualNotificationService {
    */
   async sendTestNotification(data) {
     try {
-      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('adminToken');
       const response = await axios.post(`${this.baseURL}/notifications/test`, data, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -832,7 +822,7 @@ class ContextualNotificationService {
    */
   async getStatistics() {
     try {
-      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('adminToken');
       const response = await axios.get(`${this.baseURL}/notifications/statistics`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -884,7 +874,7 @@ class ContextualNotificationService {
    */
   async cleanupOldNotifications(days = 90) {
     try {
-      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('adminToken');
       const response = await axios.delete(`${this.baseURL}/notifications/cleanup`, {
         params: { days },
         headers: {
@@ -942,26 +932,16 @@ function getClientNotificationService() {
  * Legacy compatibility - returns service based on current auth state
  */
 function getLegacyNotificationService() {
-  const authToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-  const userData = localStorage.getItem('auth_user') || sessionStorage.getItem('auth_user');
+  const adminToken = localStorage.getItem('adminToken');
+  const clientToken = localStorage.getItem('clientToken');
 
-  if (!authToken || !userData) {
-    console.warn('⚠️ No authentication tokens found for notification service');
-    return getAdminNotificationService(); // Default fallback
+  // Prioritize admin if both are present
+  if (adminToken) {
+    return getAdminNotificationService();
   }
 
-  try {
-    const user = JSON.parse(userData);
-    // Prioritize admin if user type is admin
-    if (user.type === 'admin') {
-      return getAdminNotificationService();
-    }
-
-    if (user.type === 'client') {
-      return getClientNotificationService();
-    }
-  } catch (error) {
-    console.error('Error parsing user data:', error);
+  if (clientToken) {
+    return getClientNotificationService();
   }
 
   // Default to admin for backward compatibility
