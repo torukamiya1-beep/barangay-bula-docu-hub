@@ -256,20 +256,22 @@ export default {
       return 'dashboard';
     },
     trendsChartData() {
-      if (!this.analyticsData?.trends) return null;
+      if (!this.analyticsData?.trends || !Array.isArray(this.analyticsData.trends) || this.analyticsData.trends.length === 0) {
+        return null;
+      }
 
       return {
-        labels: this.analyticsData.trends.map(item => item.period),
+        labels: this.analyticsData.trends.map(item => item.period || 'Unknown'),
         datasets: [
           {
             label: 'Completed Requests',
             backgroundColor: '#28a745',
-            data: this.analyticsData.trends.map(item => item.completed_requests)
+            data: this.analyticsData.trends.map(item => item.completed_requests || 0)
           },
           {
             label: 'Rejected Requests',
             backgroundColor: '#dc3545',
-            data: this.analyticsData.trends.map(item => item.rejected_requests)
+            data: this.analyticsData.trends.map(item => item.rejected_requests || 0)
           },
           {
             label: 'Cancelled Requests',
@@ -280,12 +282,14 @@ export default {
       };
     },
     documentTypesChartData() {
-      if (!this.analyticsData?.documentTypes) return null;
+      if (!this.analyticsData?.documentTypes || !Array.isArray(this.analyticsData.documentTypes) || this.analyticsData.documentTypes.length === 0) {
+        return null;
+      }
 
       return {
-        labels: this.analyticsData.documentTypes.map(item => item.type_name),
+        labels: this.analyticsData.documentTypes.map(item => item.type_name || 'Unknown'),
         datasets: [{
-          data: this.analyticsData.documentTypes.map(item => item.request_count),
+          data: this.analyticsData.documentTypes.map(item => item.request_count || 0),
           backgroundColor: [
             '#007bff',
             '#28a745',
@@ -298,12 +302,14 @@ export default {
       };
     },
     statusDistributionChartData() {
-      if (!this.analyticsData?.statusDistribution) return null;
+      if (!this.analyticsData?.statusDistribution || !Array.isArray(this.analyticsData.statusDistribution) || this.analyticsData.statusDistribution.length === 0) {
+        return null;
+      }
 
       return {
-        labels: this.analyticsData.statusDistribution.map(item => item.status_name),
+        labels: this.analyticsData.statusDistribution.map(item => item.status_name || 'Unknown'),
         datasets: [{
-          data: this.analyticsData.statusDistribution.map(item => item.percentage),
+          data: this.analyticsData.statusDistribution.map(item => item.percentage || 0),
           backgroundColor: [
             '#ffc107', // Pending
             '#17a2b8', // Under Review
@@ -319,10 +325,12 @@ export default {
       };
     },
     revenueChartData() {
-      if (!this.analyticsData?.trends) return null;
+      if (!this.analyticsData?.trends || !Array.isArray(this.analyticsData.trends) || this.analyticsData.trends.length === 0) {
+        return null;
+      }
 
       return {
-        labels: this.analyticsData.trends.map(item => item.period),
+        labels: this.analyticsData.trends.map(item => item.period || 'Unknown'),
         datasets: [{
           label: 'Revenue (₱)',
           borderColor: '#28a745',
@@ -471,10 +479,41 @@ export default {
       try {
         this.loading = true;
         const response = await adminDocumentService.getAnalyticsData(this.selectedPeriod);
-        this.analyticsData = response.data;
+
+        // Enhanced error checking and data validation
+        if (response && response.success && response.data) {
+          this.analyticsData = response.data;
+          console.log('✅ Analytics data loaded successfully:', this.analyticsData);
+        } else {
+          console.error('❌ Invalid analytics response:', response);
+          throw new Error(response?.message || 'Invalid response format');
+        }
       } catch (error) {
         console.error('Failed to load analytics data:', error);
-        this.$toast.error('Failed to load analytics data');
+
+        // Enhanced error handling with specific error messages
+        let errorMessage = 'Failed to load analytics data';
+        if (error.response) {
+          if (error.response.status === 500) {
+            errorMessage = 'Server error while loading analytics. Please try again later.';
+          } else if (error.response.status === 401) {
+            errorMessage = 'Authentication required. Please log in again.';
+          } else if (error.response.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        this.$toast.error(errorMessage);
+
+        // Set empty analytics data to prevent undefined errors
+        this.analyticsData = {
+          trends: [],
+          documentTypes: [],
+          statusDistribution: [],
+          topClients: []
+        };
       } finally {
         this.loading = false;
       }

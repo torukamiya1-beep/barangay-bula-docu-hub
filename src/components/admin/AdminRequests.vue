@@ -5192,6 +5192,27 @@ export default {
           return;
         }
 
+        // Debug: Log the request object to see what properties are available
+        console.log('🔍 Debug - Request object for image viewing:', {
+          requestId,
+          imageType,
+          request: {
+            id: request.id,
+            beneficiary_verification_image: request.beneficiary_verification_image,
+            pickup_id_image: request.pickup_id_image,
+            pickup_authorization_letter: request.pickup_authorization_letter,
+            beneficiary: request.beneficiary,
+            authorized_pickup: request.authorized_pickup,
+            // Show all properties that might contain image paths
+            allProperties: Object.keys(request).filter(key =>
+              key.includes('image') || key.includes('verification') || key.includes('authorization')
+            ).reduce((obj, key) => {
+              obj[key] = request[key];
+              return obj;
+            }, {})
+          }
+        });
+
         let filename = '';
         let documentType = '';
 
@@ -5200,26 +5221,73 @@ export default {
             // Handle both list view (beneficiary_verification_image) and detail view (beneficiary.verification_image_path)
             filename = request.beneficiary_verification_image || request.beneficiary?.verification_image_path;
             documentType = 'beneficiary';
-            // For beneficiary documents, we need the beneficiary ID, not the request ID
-            if (request.beneficiary?.id) {
-              requestId = request.beneficiary.id;
+            // Use beneficiary ID if available, otherwise keep request ID
+            const beneficiaryId = request.beneficiary_id || request.beneficiary?.id;
+            if (beneficiaryId) {
+              requestId = beneficiaryId;
             }
             break;
           case 'pickup-id':
             filename = request.pickup_id_image || request.authorized_pickup?.id_image_path;
             documentType = 'pickup-id';
+            // Use pickup person ID if available
+            const pickupPersonId = request.pickup_person_id || request.authorized_pickup?.id;
+            if (pickupPersonId) {
+              requestId = pickupPersonId;
+            }
             break;
           case 'pickup-auth':
             filename = request.pickup_authorization_letter || request.authorized_pickup?.authorization_letter_path;
             documentType = 'pickup-auth';
+            // Use pickup person ID if available
+            const authPickupPersonId = request.pickup_person_id || request.authorized_pickup?.id;
+            if (authPickupPersonId) {
+              requestId = authPickupPersonId;
+            }
             break;
           default:
             this.showToast('Error', 'Invalid image type', 'error');
             return;
         }
 
+        console.log('🔍 Debug - Image path resolution:', {
+          imageType,
+          filename,
+          documentType,
+          finalRequestId: requestId
+        });
+
         if (!filename) {
-          this.showToast('Error', 'No image available', 'error');
+          let errorMessage = 'No image available';
+          let detailMessage = '';
+
+          switch (imageType) {
+            case 'beneficiary':
+              errorMessage = 'No beneficiary verification image available';
+              detailMessage = 'The beneficiary has not uploaded a verification image yet.';
+              break;
+            case 'pickup-id':
+              errorMessage = 'No pickup person ID image available';
+              detailMessage = 'The authorized pickup person has not uploaded their ID image yet.';
+              break;
+            case 'pickup-auth':
+              errorMessage = 'No authorization document available';
+              detailMessage = 'The authorization letter has not been uploaded yet.';
+              break;
+          }
+
+          console.log('❌ No image available:', {
+            imageType,
+            errorMessage,
+            detailMessage,
+            requestData: {
+              beneficiary_verification_image: request.beneficiary_verification_image,
+              pickup_id_image: request.pickup_id_image,
+              pickup_authorization_letter: request.pickup_authorization_letter
+            }
+          });
+
+          this.showToast('Error', errorMessage, 'error');
           return;
         }
 
@@ -5241,12 +5309,23 @@ export default {
     // Display image in modal with authentication
     async displayImageInModal(imageUrl, title) {
       try {
+        console.log('🖼️ Attempting to load image:', {
+          url: imageUrl,
+          title
+        });
+
         // Import the API service
         const api = (await import('@/services/api.js')).default;
 
         // Fetch the image with authentication headers
         const response = await api.get(imageUrl, {
           responseType: 'blob'
+        });
+
+        console.log('✅ Image loaded successfully:', {
+          url: imageUrl,
+          contentType: response.headers['content-type'],
+          size: response.data.size
         });
 
         // Create object URL from blob
@@ -5292,8 +5371,46 @@ export default {
         });
 
       } catch (error) {
-        console.error('Error displaying image:', error);
-        this.showToast('Error', 'Failed to load image', 'error');
+        console.error('❌ Error displaying image:', {
+          url: imageUrl,
+          error: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data
+        });
+
+        let errorMessage = 'Failed to load image';
+        let detailMessage = '';
+
+        if (error.response) {
+          switch (error.response.status) {
+            case 404:
+              errorMessage = 'Image not found';
+              detailMessage = 'The verification image file could not be found on the server.';
+              break;
+            case 403:
+              errorMessage = 'Access denied';
+              detailMessage = 'You do not have permission to view this image.';
+              break;
+            case 401:
+              errorMessage = 'Authentication required';
+              detailMessage = 'Please log in again to view this image.';
+              break;
+            case 500:
+              errorMessage = 'Server error';
+              detailMessage = 'There was a problem loading the image from the server.';
+              break;
+            default:
+              errorMessage = `Failed to load image (${error.response.status})`;
+              detailMessage = error.response.statusText || 'Unknown server error';
+          }
+        } else if (error.code === 'NETWORK_ERROR') {
+          errorMessage = 'Network error';
+          detailMessage = 'Could not connect to the server. Please check your internet connection.';
+        }
+
+        console.log('📝 Showing error message:', { errorMessage, detailMessage });
+        this.showToast('Error', errorMessage, 'error');
       }
     },
 

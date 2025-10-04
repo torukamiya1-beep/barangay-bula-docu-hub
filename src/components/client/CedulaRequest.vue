@@ -955,7 +955,6 @@
             type="submit"
             class="btn-submit"
             :disabled="submitButtonDisabled"
-            @click="handleSubmitClick"
           >
             <template v-if="submitting">
               <i class="fas fa-spinner fa-spin"></i>
@@ -995,6 +994,10 @@ export default {
       processingFee: 5.00, // Processing fee
       basicTax: 5.00, // Basic community tax
       familyRelationshipError: null,
+
+      // Duplicate submission prevention
+      lastSubmissionTime: 0,
+      submissionInProgress: false,
       formData: {
         document_type_id: 1, // Cedula
         purpose_category_id: '',
@@ -1653,26 +1656,30 @@ export default {
       return true;
     },
 
-    handleSubmitClick(event) {
-      console.log('🔥 Submit button clicked!', event);
-      console.log('📋 Form data:', this.formData);
-      console.log('✅ Agree to terms:', this.formData.agree_to_terms);
-      console.log('🔄 Current step:', this.currentStep);
-      console.log('🚫 Button disabled:', this.submitting || !this.formData.agree_to_terms);
 
-      // Don't prevent default here, let the form submission happen naturally
-    },
 
     async handleSubmit() {
       console.log('🚀 handleSubmit called');
       console.log('📋 Form data:', this.formData);
       console.log('✅ Agree to terms:', this.formData.agree_to_terms);
 
+      // Prevent duplicate submissions
+      const now = Date.now();
+      if (this.submissionInProgress || (now - this.lastSubmissionTime < 3000)) {
+        console.log('🚫 Duplicate submission prevented');
+        this.showToast('Warning', 'Please wait before submitting again', 'warning');
+        return;
+      }
+
       if (!this.formData.agree_to_terms) {
         console.log('❌ Terms not agreed to');
         this.showToast('Error', 'Please agree to the terms and conditions', 'error');
         return;
       }
+
+      // Set submission flags
+      this.submissionInProgress = true;
+      this.lastSubmissionTime = now;
 
       // Debug pickup option and form data
       console.log('🔍 DEBUG: pickupOption =', this.pickupOption);
@@ -1685,6 +1692,7 @@ export default {
         if (!this.validateAuthorizedPickup(true)) {
           console.log('❌ Validation failed, stopping submission');
           this.submitting = false;
+          this.submissionInProgress = false;
           return;
         }
         console.log('✅ Validation passed, continuing with submission');
@@ -1701,6 +1709,7 @@ export default {
         if (!token) {
           this.showToast('Error', 'Please log in to submit a request', 'error');
           this.submitting = false;
+          this.submissionInProgress = false;
           return;
         }
 
@@ -1762,6 +1771,7 @@ export default {
         if (!requestData.purpose_category_id) {
           this.showToast('Error', 'Please select a purpose category', 'error');
           this.submitting = false;
+          this.submissionInProgress = false;
           return;
         }
 
@@ -1769,11 +1779,13 @@ export default {
         if (this.shouldShowPurposeDetails && (!requestData.purpose_details || requestData.purpose_details.length < 10)) {
           this.showToast('Error', 'Purpose details must be at least 10 characters long', 'error');
           this.submitting = false;
+          this.submissionInProgress = false;
           return;
         }
         if (!requestData.payment_method_id) {
           this.showToast('Error', 'Please select a payment method', 'error');
           this.submitting = false;
+          this.submissionInProgress = false;
           return;
         }
 
@@ -1817,6 +1829,7 @@ export default {
       } finally {
         console.log('🏁 Submission process completed');
         this.submitting = false;
+        this.submissionInProgress = false;
       }
     },
 
