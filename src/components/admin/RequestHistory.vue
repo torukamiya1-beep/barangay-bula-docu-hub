@@ -4550,7 +4550,8 @@ export default {
         const filenameOnly = filename.split(/[/\\]/).pop();
 
         // Construct the URL for the verification document service
-        const imageUrl = `/api/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
+        // Note: Don't include /api prefix because axios baseURL already includes it
+        const imageUrl = `/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
 
         // Fetch the image with authentication headers and display in modal
         await this.displayImageInModal(imageUrl, `${documentType} verification image`);
