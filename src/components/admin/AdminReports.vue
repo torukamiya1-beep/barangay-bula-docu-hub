@@ -150,7 +150,13 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr v-for="client in analyticsData.topClients" :key="client.client_name">
+                                <tr v-if="!analyticsData || !analyticsData.topClients || analyticsData.topClients.length === 0">
+                                  <td colspan="2" class="text-center text-muted">
+                                    <span v-if="loading">Loading clients data...</span>
+                                    <span v-else>No client data available</span>
+                                  </td>
+                                </tr>
+                                <tr v-for="client in (analyticsData?.topClients || [])" :key="client.client_name">
                                   <td>{{ client.client_name }}</td>
                                   <td>{{ client.request_count }}</td>
                                 </tr>
