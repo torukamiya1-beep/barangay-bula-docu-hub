@@ -5198,15 +5198,26 @@ export default {
           imageType,
           request: {
             id: request.id,
+            is_third_party_request: request.is_third_party_request,
             beneficiary_verification_image: request.beneficiary_verification_image,
             pickup_id_image: request.pickup_id_image,
             pickup_authorization_letter: request.pickup_authorization_letter,
+            beneficiary_id: request.beneficiary_id,
+            beneficiary_name: request.beneficiary_name,
+            beneficiary_verification_status: request.beneficiary_verification_status,
+            pickup_person_name: request.pickup_person_name,
+            pickup_verified: request.pickup_verified,
             beneficiary: request.beneficiary,
             authorized_pickup: request.authorized_pickup,
             // Show all properties that might contain image paths
-            allProperties: Object.keys(request).filter(key =>
-              key.includes('image') || key.includes('verification') || key.includes('authorization')
+            allImageProperties: Object.keys(request).filter(key =>
+              key.includes('image') || key.includes('verification') || key.includes('authorization') || key.includes('pickup') || key.includes('beneficiary')
             ).reduce((obj, key) => {
+              obj[key] = request[key];
+              return obj;
+            }, {}),
+            // Show first 10 properties to understand the structure
+            sampleProperties: Object.keys(request).slice(0, 10).reduce((obj, key) => {
               obj[key] = request[key];
               return obj;
             }, {})
@@ -5254,7 +5265,10 @@ export default {
           imageType,
           filename,
           documentType,
-          finalRequestId: requestId
+          finalRequestId: requestId,
+          hasFilename: !!filename,
+          filenameLength: filename ? filename.length : 0,
+          filenameType: typeof filename
         });
 
         if (!filename) {
@@ -5276,7 +5290,7 @@ export default {
               break;
           }
 
-          console.log('❌ No image available:', {
+          console.log('❌ No image available - Detailed analysis:', {
             imageType,
             errorMessage,
             detailMessage,
@@ -5284,7 +5298,15 @@ export default {
               beneficiary_verification_image: request.beneficiary_verification_image,
               pickup_id_image: request.pickup_id_image,
               pickup_authorization_letter: request.pickup_authorization_letter
-            }
+            },
+            alternativeProperties: {
+              'beneficiary?.verification_image_path': request.beneficiary?.verification_image_path,
+              'authorized_pickup?.id_image_path': request.authorized_pickup?.id_image_path,
+              'authorized_pickup?.authorization_letter_path': request.authorized_pickup?.authorization_letter_path
+            },
+            isThirdPartyRequest: request.is_third_party_request,
+            hasBeneficiaryId: !!request.beneficiary_id,
+            hasPickupPersonName: !!request.pickup_person_name
           });
 
           this.showToast('Error', errorMessage, 'error');
@@ -5295,7 +5317,15 @@ export default {
         const filenameOnly = filename.split(/[/\\]/).pop();
 
         // Construct the URL for the verification document service
-        const imageUrl = `/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
+        const imageUrl = `/api/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
+
+        console.log('✅ Image filename found - Proceeding to load:', {
+          originalFilename: filename,
+          filenameOnly,
+          imageUrl,
+          documentType,
+          requestId
+        });
 
         // Fetch the image with authentication headers and display in modal
         await this.displayImageInModal(imageUrl, `${documentType} verification image`);

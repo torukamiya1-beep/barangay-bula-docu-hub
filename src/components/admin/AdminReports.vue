@@ -493,7 +493,10 @@ export default {
 
         // Enhanced error handling with specific error messages
         let errorMessage = 'Failed to load analytics data';
+
+        // Handle different error formats
         if (error.response) {
+          // Direct API response error
           if (error.response.status === 500) {
             errorMessage = 'Server error while loading analytics. Please try again later.';
           } else if (error.response.status === 401) {
@@ -502,10 +505,27 @@ export default {
             errorMessage = error.response.data.message;
           }
         } else if (error.message) {
-          errorMessage = error.message;
+          // Check if error message is JSON string (from service handleError)
+          try {
+            const parsedError = JSON.parse(error.message);
+            if (parsedError.message) {
+              errorMessage = parsedError.message;
+            }
+            if (parsedError.status === 500) {
+              errorMessage = 'Server error while loading analytics. Please try again later.';
+            }
+          } catch (parseError) {
+            // Not JSON, use original message
+            errorMessage = error.message;
+          }
         }
 
-        this.$toast.error(errorMessage);
+        // Safe toast notification
+        if (this.$toast && typeof this.$toast.error === 'function') {
+          this.$toast.error(errorMessage);
+        } else {
+          console.error('Toast not available, error message:', errorMessage);
+        }
 
         // Set empty analytics data to prevent undefined errors
         this.analyticsData = {

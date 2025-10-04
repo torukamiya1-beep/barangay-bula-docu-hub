@@ -1819,9 +1819,23 @@ export default {
         const response = await userManagementService.getUsers(params);
 
         if (response.success) {
-          this.users = response.data.users.map(user =>
-            userManagementService.formatUserData(user)
-          );
+          // Debug: Log raw user data to see what we're receiving
+          console.log('🔍 Raw user data from API:', response.data.users.slice(0, 2));
+
+          this.users = response.data.users.map(user => {
+            const formattedUser = userManagementService.formatUserData(user);
+
+            // Debug: Log formatted user data for clients with residency documents
+            if (formattedUser.type === 'client' && formattedUser.residency_document_count > 0) {
+              console.log('🔍 Client with residency documents:', {
+                username: formattedUser.username,
+                residency_document_count: formattedUser.residency_document_count,
+                residency_verification_status: formattedUser.residency_verification_status
+              });
+            }
+
+            return formattedUser;
+          });
           this.calculateStats();
         } else {
           throw new Error(response.message || 'Failed to load users');
@@ -2315,6 +2329,17 @@ export default {
     // Check if user has residency documents that need review (not approved)
     hasResidencyDocumentsNeedingReview(user) {
       if (user.type !== 'client') return false;
+
+      // Debug logging to see what data we have
+      console.log('🔍 Checking residency documents for user:', {
+        username: user.username,
+        residency_document_count: user.residency_document_count,
+        residency_verification_status: user.residency_verification_status,
+        type: typeof user.residency_document_count,
+        hasDocuments: user.residency_document_count > 0,
+        notApproved: user.residency_verification_status !== 'approved'
+      });
+
       // Only show review button if they have documents AND they're not already approved
       return user.residency_document_count > 0 && user.residency_verification_status !== 'approved';
     },

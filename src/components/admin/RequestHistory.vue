@@ -4547,7 +4547,7 @@ export default {
         const filenameOnly = filename.split(/[/\\]/).pop();
 
         // Construct the URL for the verification document service
-        const imageUrl = `/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
+        const imageUrl = `/api/verification-documents/serve/${documentType}/${requestId}/${filenameOnly}`;
 
         // Fetch the image with authentication headers and display in modal
         await this.displayImageInModal(imageUrl, `${documentType} verification image`);
@@ -4716,7 +4716,7 @@ export default {
         beneficiary_name: request.beneficiary_name,
         relationship: request.beneficiary_relationship,
         image_url: request.beneficiary_verification_image ?
-          `/verification-documents/serve/beneficiary/${request.id}/${request.beneficiary_verification_image.split('/').pop()}` :
+          `/api/verification-documents/serve/beneficiary/${request.id}/${request.beneficiary_verification_image.split('/').pop()}` :
           null,
         current_status: request.beneficiary_verification_status
       };
