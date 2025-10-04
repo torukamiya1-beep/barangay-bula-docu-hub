@@ -452,17 +452,7 @@ export default {
     // Upload residency documents (API call)
     async uploadResidencyDocuments(formData) {
       // Use the proper API base URL to avoid proxy issues
-      let API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
-
-      // Fix: If the URL doesn't start with http:// or https://, add https://
-      if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
-        API_BASE_URL = `https://${API_BASE_URL}`;
-      }
-
-      // Ensure the API URL ends with /api
-      if (!API_BASE_URL.endsWith('/api')) {
-        API_BASE_URL = `${API_BASE_URL}/api`;
-      }
+      const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
 
       // Use the registration-specific endpoint that doesn't require authentication
       const response = await fetch(`${API_BASE_URL}/residency/upload-registration`, {

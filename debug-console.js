@@ -37,37 +37,34 @@ if (window.__notificationService) {
 }
 
 // Check localStorage for tokens
-console.log('🔑 Unified auth token exists:', !!localStorage.getItem('auth_token'));
-console.log('🔑 Admin token exists (legacy):', !!localStorage.getItem('adminToken'));
-console.log('🔑 Client token exists (legacy):', !!localStorage.getItem('clientToken'));
+console.log('🔑 Admin token exists:', !!localStorage.getItem('adminToken'));
+console.log('🔑 Client token exists:', !!localStorage.getItem('clientToken'));
 
 // Check if we're on admin or client side
 console.log('🌐 Current URL:', window.location.href);
 
 // Test direct API call
 async function testDirectAPI() {
-  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') ||
-                localStorage.getItem('adminToken') || localStorage.getItem('clientToken');
-
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('clientToken');
+  
   if (!token) {
     console.log('❌ No token found');
     return;
   }
-
+  
   try {
     console.log('🌐 Testing direct API call...');
-
-    const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000';
-    const response = await fetch(`${API_BASE_URL}/api/notifications?page=1&limit=5`, {
+    
+    const response = await fetch('http://localhost:7000/api/notifications?page=1&limit=5', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
-
+    
     const data = await response.json();
     console.log('📨 Direct API response:', data);
-
+    
   } catch (error) {
     console.error('❌ Direct API error:', error);
   }

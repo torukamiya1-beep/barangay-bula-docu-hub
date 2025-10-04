@@ -47,11 +47,7 @@ class AdminAuthService {
       const response = await api.post('/admin/auth/login', credentials);
       
       if (response.data.success && response.data.data.token) {
-        // Store token and admin data using unified auth system
-        localStorage.setItem('auth_token', response.data.data.token);
-        localStorage.setItem('auth_user', JSON.stringify(response.data.data.admin));
-
-        // Keep legacy storage for backward compatibility
+        // Store token and admin data
         localStorage.setItem('adminToken', response.data.data.token);
         localStorage.setItem('adminData', JSON.stringify(response.data.data.admin));
 
@@ -71,8 +67,7 @@ class AdminAuthService {
       
       // Update stored admin data
       if (response.data.success && response.data.data) {
-        localStorage.setItem('auth_user', JSON.stringify(response.data.data));
-        localStorage.setItem('adminData', JSON.stringify(response.data.data)); // Legacy compatibility
+        localStorage.setItem('adminData', JSON.stringify(response.data.data));
       }
       
       return response.data;
@@ -88,8 +83,7 @@ class AdminAuthService {
 
       // Update stored admin data
       if (response.data.success && response.data.data) {
-        localStorage.setItem('auth_user', JSON.stringify(response.data.data));
-        localStorage.setItem('adminData', JSON.stringify(response.data.data)); // Legacy compatibility
+        localStorage.setItem('adminData', JSON.stringify(response.data.data));
       }
 
       return response.data;
@@ -194,13 +188,6 @@ class AdminAuthService {
 
   // Clear authentication data
   clearAuthData() {
-    // Clear unified auth tokens
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('auth_user');
-
-    // Clear legacy tokens for backward compatibility
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminData');
     // Note: Authorization header is now handled by API interceptor
@@ -208,14 +195,13 @@ class AdminAuthService {
 
   // Check if admin is logged in
   isLoggedIn() {
-    // Check unified auth token first, then fallback to legacy
-    const token = localStorage.getItem('auth_token') || localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken');
     return !!token;
   }
 
   // Check if admin is authenticated (with token validation)
   isAuthenticated() {
-    const token = localStorage.getItem('auth_token') || localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken');
     const adminData = this.getAdminData();
 
     if (!token || !adminData) {
@@ -280,15 +266,13 @@ class AdminAuthService {
 
   // Get stored admin data
   getAdminData() {
-    // Try unified auth first, then fallback to legacy
-    const adminData = localStorage.getItem('auth_user') || localStorage.getItem('adminData');
+    const adminData = localStorage.getItem('adminData');
     return adminData ? JSON.parse(adminData) : null;
   }
 
   // Get stored token
   getToken() {
-    // Try unified auth first, then fallback to legacy
-    return localStorage.getItem('auth_token') || localStorage.getItem('adminToken');
+    return localStorage.getItem('adminToken');
   }
 
   // Send OTP for registration or other purposes
@@ -335,28 +319,10 @@ class AdminAuthService {
 
   // Initialize authentication on app start
   initializeAuth() {
-    // Migrate legacy auth to unified auth if needed
-    this.migrateLegacyAuth();
-
     const token = this.getToken();
     if (token) {
       // Note: Authorization header is now handled by API interceptor
       // Token is automatically included in requests by the interceptor
-    }
-  }
-
-  // Migrate legacy auth to unified auth
-  migrateLegacyAuth() {
-    const adminToken = localStorage.getItem('adminToken');
-    const adminData = localStorage.getItem('adminData');
-    const authToken = localStorage.getItem('auth_token');
-
-    // If we have legacy auth but no unified auth, migrate it
-    if (adminToken && adminData && !authToken) {
-      console.log('🔄 Migrating legacy admin auth to unified auth system');
-      localStorage.setItem('auth_token', adminToken);
-      localStorage.setItem('auth_user', adminData);
-      console.log('✅ Migration completed');
     }
   }
 

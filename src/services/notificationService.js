@@ -403,9 +403,9 @@ class ContextualNotificationService {
   /**
    * Poll for new notifications and updates
    */
-  async pollNotifications() {
+  async pollNotifications(userType = 'admin') {
     try {
-      const token = this.userType === 'admin'
+      const token = userType === 'admin'
         ? localStorage.getItem('adminToken')
         : localStorage.getItem('clientToken');
 
