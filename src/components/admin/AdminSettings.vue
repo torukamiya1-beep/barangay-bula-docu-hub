@@ -107,7 +107,7 @@
                         <form @submit.prevent="saveProfile">
                           <div class="row">
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">First Name</label>
+                              <label class="form-label">First Name *</label>
                               <input type="text" class="form-control" v-model="profileForm.first_name" required>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -117,7 +117,7 @@
                           </div>
                           <div class="row">
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Last Name</label>
+                              <label class="form-label">Last Name *</label>
                               <input type="text" class="form-control" v-model="profileForm.last_name" required>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -127,27 +127,27 @@
                           </div>
                           <div class="row">
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Employee ID</label>
+                              <label class="form-label">Employee ID *</label>
                               <input type="text" class="form-control" v-model="profileForm.employee_id">
                             </div>
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Phone Number</label>
+                              <label class="form-label">Phone Number *</label>
                               <input type="tel" class="form-control" v-model="profileForm.phone_number">
                             </div>
                           </div>
                           <div class="row">
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Email</label>
+                              <label class="form-label">Email *</label>
                               <input type="email" class="form-control" v-model="profileForm.email" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Position</label>
+                              <label class="form-label">Position *</label>
                               <input type="text" class="form-control" v-model="profileForm.position">
                             </div>
                           </div>
                           <div class="row">
                             <div class="col-md-6 mb-3">
-                              <label class="form-label">Department</label>
+                              <label class="form-label">Department *</label>
                               <input type="text" class="form-control" v-model="profileForm.department">
                             </div>
                             <!-- I will hide this for now -->
