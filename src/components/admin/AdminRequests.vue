@@ -5227,38 +5227,38 @@ export default {
         let filename = '';
         let documentType = '';
 
+        // Declare variables outside switch to avoid ESLint no-case-declarations
+        let tempId;
+
         switch (imageType) {
-          case 'beneficiary': {
+          case 'beneficiary':
             // Handle both list view (beneficiary_verification_image) and detail view (beneficiary.verification_image_path)
             filename = request.beneficiary_verification_image || request.beneficiary?.verification_image_path;
             documentType = 'beneficiary';
             // Use beneficiary ID if available, otherwise keep request ID
-            const beneficiaryId = request.beneficiary_id || request.beneficiary?.id;
-            if (beneficiaryId) {
-              requestId = beneficiaryId;
+            tempId = request.beneficiary_id || request.beneficiary?.id;
+            if (tempId) {
+              requestId = tempId;
             }
             break;
-          }
-          case 'pickup-id': {
+          case 'pickup-id':
             filename = request.pickup_id_image || request.authorized_pickup?.id_image_path;
             documentType = 'pickup-id';
             // Use pickup person ID if available
-            const pickupPersonId = request.pickup_person_id || request.authorized_pickup?.id;
-            if (pickupPersonId) {
-              requestId = pickupPersonId;
+            tempId = request.pickup_person_id || request.authorized_pickup?.id;
+            if (tempId) {
+              requestId = tempId;
             }
             break;
-          }
-          case 'pickup-auth': {
+          case 'pickup-auth':
             filename = request.pickup_authorization_letter || request.authorized_pickup?.authorization_letter_path;
             documentType = 'pickup-auth';
             // Use pickup person ID if available
-            const authPickupPersonId = request.pickup_person_id || request.authorized_pickup?.id;
-            if (authPickupPersonId) {
-              requestId = authPickupPersonId;
+            tempId = request.pickup_person_id || request.authorized_pickup?.id;
+            if (tempId) {
+              requestId = tempId;
             }
             break;
-          }
           default:
             this.showToast('Error', 'Invalid image type', 'error');
             return;

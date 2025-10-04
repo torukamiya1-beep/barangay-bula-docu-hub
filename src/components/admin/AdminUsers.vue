@@ -166,10 +166,10 @@
                     {{ activeTab === 'clients' ? 'Client Management' : 'Admin Management' }}
                   </h6> -->
                   <div class="d-flex gap-2">
-                    <button class="btn btn-outline-success btn-sm" @click="loadUsers" :disabled="loading">
+                    <!-- <button class="btn btn-outline-success btn-sm" @click="loadUsers" :disabled="loading">
                       <i class="fas fa-sync-alt me-1" :class="{ 'fa-spin': loading }"></i>
                       Refresh
-                    </button>
+                    </button> -->
                     <button v-if="activeTab === 'admins'" class="btn btn-success btn-sm" @click="showAddUserModal">
                       <i class="fas fa-user-plus me-1"></i>
                       Add Admin

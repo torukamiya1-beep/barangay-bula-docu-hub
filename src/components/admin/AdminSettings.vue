@@ -708,7 +708,14 @@ export default {
         this.profileLoading = true;
         this.clearMessages();
 
-        const response = await adminAuthService.updateProfile(this.profileForm);
+        // Create a copy of profileForm and remove hire_date if it's empty
+        // since the field is commented out in the form
+        const profileData = { ...this.profileForm };
+        if (!profileData.hire_date || profileData.hire_date.trim() === '') {
+          delete profileData.hire_date;
+        }
+
+        const response = await adminAuthService.updateProfile(profileData);
 
         if (response.success) {
           this.successMessage = 'Profile updated successfully!';

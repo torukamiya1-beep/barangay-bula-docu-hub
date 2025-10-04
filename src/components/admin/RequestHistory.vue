@@ -3004,6 +3004,9 @@ export default {
     getDateRangeForReport() {
       const { reportType, selectedDate, selectedWeek, selectedMonth } = this.pdfExportForm;
 
+      // Declare variables outside switch to avoid ESLint no-case-declarations
+      let year, week, month, startDate, endDate;
+
       switch (reportType) {
         case 'daily':
           return {
@@ -3013,9 +3016,9 @@ export default {
 
         case 'weekly':
           if (selectedWeek) {
-            const [year, week] = selectedWeek.split('-W');
-            const startDate = this.getDateFromWeek(parseInt(year), parseInt(week));
-            const endDate = new Date(startDate);
+            [year, week] = selectedWeek.split('-W');
+            startDate = this.getDateFromWeek(parseInt(year), parseInt(week));
+            endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + 6);
 
             return {
@@ -3027,9 +3030,9 @@ export default {
 
         case 'monthly':
           if (selectedMonth) {
-            const [year, month] = selectedMonth.split('-');
-            const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-            const endDate = new Date(parseInt(year), parseInt(month), 0);
+            [year, month] = selectedMonth.split('-');
+            startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+            endDate = new Date(parseInt(year), parseInt(month), 0);
 
             return {
               from: startDate.toISOString().split('T')[0],

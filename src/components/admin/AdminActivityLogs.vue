@@ -35,10 +35,10 @@
               <div class="d-flex justify-content-between align-items-center flex-wrap">
 
                 <div class="d-flex gap-2">
-                  <button class="btn btn-outline-success btn-sm" @click="loadLogs" :disabled="loading">
+                  <!-- <button class="btn btn-outline-success btn-sm" @click="loadLogs" :disabled="loading">
                     <i class="fas fa-sync-alt me-1" :class="{ 'fa-spin': loading }"></i>
                     Refresh
-                  </button>
+                  </button> -->
                   <button class="btn btn-success btn-sm" @click="exportLogs">
                     <i class="fas fa-download me-1"></i>
                     Export
