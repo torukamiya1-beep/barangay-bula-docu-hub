@@ -153,7 +153,7 @@
               @click="viewRequestDetails(request.id)"
             >
               <td class="col-id">
-                <span class="request-id">#{{ request.id.toString().padStart(6, '0') }}</span>
+                <span class="request-id">{{ request.request_number }}</span>
               </td>
               <td class="col-type">
                 <div class="document-type">
