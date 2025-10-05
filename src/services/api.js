@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: process.env.VUE_APP_API_URL || 'http://localhost:7000/api',
-  timeout: 15000,
+  timeout: 60000, // Increased to 60 seconds for slow connections
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -38,25 +38,53 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor to handle errors and retries
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const config = error.config;
+
     // Enhanced error logging for debugging
     const errorDetails = {
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
+      url: config?.url,
+      method: config?.method?.toUpperCase(),
       status: error.response?.status,
       statusText: error.response?.statusText,
       message: error.response?.data?.message || error.message,
       data: error.response?.data,
-      requestData: error.config?.data
+      requestData: config?.data
     };
 
     console.error('API Error Details:', errorDetails);
     console.error('Full Error Object:', error);
+
+    // Initialize retry count
+    config._retryCount = config._retryCount || 0;
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1 second base delay
+
+    // Retry logic for network errors or 5xx server errors
+    const shouldRetry = (
+      !error.response || // Network error
+      (error.response.status >= 500 && error.response.status < 600) // Server error
+    ) && config._retryCount < maxRetries;
+
+    if (shouldRetry) {
+      config._retryCount += 1;
+
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = retryDelay * Math.pow(2, config._retryCount - 1);
+
+      console.log(`🔄 Retrying request (${config._retryCount}/${maxRetries}) after ${delay}ms...`);
+
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      // Retry the request
+      return api(config);
+    }
 
     if (error.response?.status === 401) {
       // Token expired or invalid - clear unified auth data
@@ -69,7 +97,11 @@ api.interceptors.response.use(
 
     // Add more helpful error messages
     if (!error.response) {
-      error.message = 'Network error - please check if the backend server is running on port 7000';
+      if (config._retryCount >= maxRetries) {
+        error.message = 'Network error - Unable to connect after multiple attempts. Please check your internet connection.';
+      } else {
+        error.message = 'Network error - please check if the backend server is running';
+      }
     } else if (error.response.status === 500) {
       error.message = 'Server error - please check the backend logs for details';
     }

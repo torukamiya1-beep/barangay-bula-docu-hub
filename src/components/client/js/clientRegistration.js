@@ -311,26 +311,46 @@ export default {
         this.errorMessage = 'Please fix the errors above';
         return;
       }
-      
+
       this.loading = true;
-      
+
       try {
         const response = await clientAuthService.completeRegistration(this.accountId, {
           ...this.profileForm,
           civil_status_id: parseInt(this.profileForm.civil_status_id)
         });
-        
+
         if (response.success) {
           this.successMessage = response.message;
           this.currentStep = 3;
-          
+
           // Start resend cooldown
           this.startResendCooldown();
         }
       } catch (error) {
         const errorData = clientAuthService.parseError(error);
-        this.errorMessage = errorData.message;
-        
+
+        // Handle specific error cases
+        if (errorData.message.includes('Profile already exists')) {
+          this.errorMessage = 'Your registration is already complete. Redirecting to login...';
+
+          // Redirect to login after 3 seconds
+          setTimeout(() => {
+            this.goToLogin();
+          }, 3000);
+        } else if (errorData.message.includes('Account not found')) {
+          this.errorMessage = 'Registration session expired. Please start over.';
+
+          // Go back to step 1 after 3 seconds
+          setTimeout(() => {
+            this.currentStep = 1;
+            this.accountId = null;
+            this.clearMessages();
+          }, 3000);
+        } else {
+          this.errorMessage = errorData.message;
+        }
+
         if (errorData.errors && errorData.errors.length > 0) {
           this.errors = { ...this.errors, ...formatApiErrors(errorData.errors) };
         }

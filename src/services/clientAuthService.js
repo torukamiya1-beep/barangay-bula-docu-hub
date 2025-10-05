@@ -254,24 +254,36 @@ class ClientAuthService {
 
   // Handle API errors
   handleError(error) {
+    // Log error details for debugging
+    console.error('API Error Details:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      message: error.response?.data?.message || error.message
+    });
+    console.error('Full Error Object:', error);
+
     if (error.response) {
-      // Server responded with error status
-      const message = error.response.data?.message || 'An error occurred';
+      // Server responded with error status (4xx, 5xx)
+      const message = error.response.data?.message || error.response.data?.error || 'An error occurred';
       const errors = error.response.data?.errors || [];
-      return new Error(JSON.stringify({ message, errors, status: error.response.status }));
+      const status = error.response.status;
+
+      return new Error(JSON.stringify({ message, errors, status }));
     } else if (error.request) {
-      // Request was made but no response received
-      return new Error(JSON.stringify({ 
-        message: 'Network error. Please check your connection.', 
-        errors: [], 
-        status: 0 
+      // Request was made but no response received (network timeout, server down, etc.)
+      return new Error(JSON.stringify({
+        message: 'Network error. Please check your connection and try again.',
+        errors: [],
+        status: 0
       }));
     } else {
-      // Something else happened
-      return new Error(JSON.stringify({ 
-        message: error.message || 'An unexpected error occurred', 
-        errors: [], 
-        status: 0 
+      // Something else happened (request setup error)
+      return new Error(JSON.stringify({
+        message: error.message || 'An unexpected error occurred',
+        errors: [],
+        status: 0
       }));
     }
   }
