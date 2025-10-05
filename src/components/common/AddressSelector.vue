@@ -7,12 +7,13 @@
       </label>
       <select
         :id="regionId"
+        name="region"
         class="form-select"
         :class="{ 'is-invalid': errors.region }"
         v-model="selectedRegion"
         @change="onRegionChange"
         :disabled="loading.regions"
-        required
+        :required="!hideDropdowns"
       >
         <option value="">
           {{ loading.regions ? 'Loading regions...' : 'Select Region' }}
@@ -40,12 +41,13 @@
       </label>
       <select
         :id="provinceId"
+        name="province"
         class="form-select"
         :class="{ 'is-invalid': errors.province }"
         v-model="selectedProvince"
         @change="onProvinceChange"
         :disabled="!selectedRegion || loading.provinces"
-        required
+        :required="!hideDropdowns"
       >
         <option value="">
           {{ getProvinceOptionText() }}
@@ -73,12 +75,13 @@
       </label>
       <select
         :id="cityId"
+        name="city"
         class="form-select"
         :class="{ 'is-invalid': errors.city }"
         v-model="selectedCity"
         @change="onCityChange"
         :disabled="!selectedProvince || loading.cities"
-        required
+        :required="!hideDropdowns"
       >
         <option value="">
           {{ getCityOptionText() }}
@@ -106,12 +109,13 @@
       </label>
       <select
         :id="barangayId"
+        name="barangay"
         class="form-select"
         :class="{ 'is-invalid': errors.barangay }"
         v-model="selectedBarangay"
         @change="onBarangayChange"
         :disabled="!selectedCity || loading.barangays"
-        required
+        :required="!hideDropdowns"
       >
         <option value="">
           {{ getBarangayOptionText() }}
@@ -217,17 +221,18 @@ export default {
   },
   computed: {
     // Generate unique IDs for form elements
+    // Vue 3 uses $.uid instead of _uid
     regionId() {
-      return `region-${this._uid}`;
+      return `region-${this.$.uid}`;
     },
     provinceId() {
-      return `province-${this._uid}`;
+      return `province-${this.$.uid}`;
     },
     cityId() {
-      return `city-${this._uid}`;
+      return `city-${this.$.uid}`;
     },
     barangayId() {
-      return `barangay-${this._uid}`;
+      return `barangay-${this.$.uid}`;
     }
   },
   watch: {

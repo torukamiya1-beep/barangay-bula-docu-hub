@@ -3,10 +3,9 @@
 
 class AddressService {
   constructor() {
-    // Use absolute URL if proxy is not working, otherwise use relative URL
-    this.baseUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:7000/api/address'
-      : '/api/address';
+    // Use environment variable for API URL to support cross-domain requests
+    const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:7000/api';
+    this.baseUrl = `${API_BASE_URL}/address`;
     this.cache = {
       regions: null,
       provinces: null,
