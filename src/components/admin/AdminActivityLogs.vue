@@ -81,6 +81,7 @@
                       <label class="form-label">Date To</label>
                       <input type="date" class="form-control" v-model="filters.dateTo">
                     </div>
+                    <!-- COMMENTED OUT: Activity Type filter (as requested by user)
                     <div class="col-md-3 mb-3">
                       <label class="form-label">Activity Type</label>
                       <select class="form-select" v-model="filters.type">
@@ -97,6 +98,7 @@
                         <option value="error">Error</option>
                       </select>
                     </div>
+                    -->
                     <div class="col-md-3 mb-3">
                       <label class="form-label">User Type</label>
                       <select class="form-select" v-model="filters.userType">
@@ -117,6 +119,7 @@
                         <option value="Barangay Clearance">Barangay Clearance</option>
                       </select>
                     </div>
+                    <!-- COMMENTED OUT: Status Changes filter (as requested by user)
                     <div class="col-md-3 mb-3">
                       <label class="form-label">Status Changes</label>
                       <select class="form-select" v-model="filters.statusChange">
@@ -130,14 +133,17 @@
                         <option value="cancelled">To Cancelled</option>
                       </select>
                     </div>
+                    -->
                     <div class="col-md-3 mb-3">
                       <label class="form-label">User Search</label>
                       <input type="text" class="form-control" placeholder="Search by user name..." v-model="filters.user">
                     </div>
+                    <!-- COMMENTED OUT: IP Address filter (as requested by user)
                     <div class="col-md-3 mb-3">
                       <label class="form-label">IP Address</label>
                       <input type="text" class="form-control" placeholder="Search by IP..." v-model="filters.ipAddress">
                     </div>
+                    -->
                   </div>
                   <div class="text-end">
                     <button class="btn btn-primary btn-sm" @click="applyFilters">
@@ -489,31 +495,32 @@ export default {
 
         let activityData = null;
 
-        // Primary approach: Use comprehensive activity logs API (from audit_logs table)
+        // TEMPORARY FIX: Use legacy activity logs API directly (has proper document types)
+        // TODO: Switch back to comprehensive API once Railway deployment is fixed
         try {
-          console.log('🔄 Loading from comprehensive activity logs API...');
-          const apiResponse = await activityLogService.getComprehensiveActivityLogs(this.filters, 1, 100);
+          console.log('🔄 Loading from legacy activity logs API (with proper document types)...');
+          const legacyResponse = await activityLogService.getActivityLogs(this.filters, 1, 100);
 
-          if (apiResponse.success && apiResponse.data && apiResponse.data.activities && apiResponse.data.activities.length > 0) {
-            console.log('✅ Loaded data from comprehensive activity logs API:', apiResponse.data.activities.length, 'records');
-            activityData = apiResponse.data.activities;
+          if (legacyResponse.success && legacyResponse.data && legacyResponse.data.activities && legacyResponse.data.activities.length > 0) {
+            console.log('✅ Loaded data from legacy activity logs API:', legacyResponse.data.activities.length, 'records');
+            activityData = legacyResponse.data.activities;
           } else {
-            throw new Error('Comprehensive API returned no data');
+            throw new Error('Legacy API returned no data');
           }
         } catch (primaryError) {
-          console.log('⚠️  Comprehensive activity logs API failed:', primaryError.message);
+          console.log('⚠️  Legacy activity logs API failed:', primaryError.message);
 
-          // Fallback 1: Try legacy activity logs API (from request_status_history)
+          // Fallback 1: Try comprehensive activity logs API (from audit_logs table)
           try {
-            console.log('🔄 Fallback: Loading from legacy activity logs API...');
-            const legacyResponse = await activityLogService.getActivityLogs(this.filters, 1, 100);
+            console.log('🔄 Fallback: Loading from comprehensive activity logs API...');
+            const comprehensiveResponse = await activityLogService.getComprehensiveActivityLogs(this.filters, 1, 100);
 
-            if (legacyResponse.success && legacyResponse.data && legacyResponse.data.activities && legacyResponse.data.activities.length > 0) {
-              console.log('✅ Loaded data from legacy activity logs API:', legacyResponse.data.activities.length, 'records');
-              activityData = legacyResponse.data.activities;
+            if (comprehensiveResponse.success && comprehensiveResponse.data && comprehensiveResponse.data.activities && comprehensiveResponse.data.activities.length > 0) {
+              console.log('✅ Loaded data from comprehensive activity logs API:', comprehensiveResponse.data.activities.length, 'records');
+              activityData = comprehensiveResponse.data.activities;
             }
           } catch (fallbackError) {
-            console.log('⚠️  Legacy activity logs API failed:', fallbackError.message);
+            console.log('⚠️  Comprehensive activity logs API failed:', fallbackError.message);
 
             // Final fallback: Try adminDocumentService (for document status changes)
             try {
@@ -619,10 +626,10 @@ export default {
         filtered = filtered.filter(log => new Date(log.timestamp) <= new Date(this.filters.dateTo + 'T23:59:59'));
       }
 
-      // Apply activity type filter
-      if (this.filters.type) {
-        filtered = filtered.filter(log => log.type === this.filters.type);
-      }
+      // COMMENTED OUT: Apply activity type filter (as requested by user)
+      // if (this.filters.type) {
+      //   filtered = filtered.filter(log => log.type === this.filters.type);
+      // }
 
       // Apply user type filter
       if (this.filters.userType) {
@@ -634,10 +641,10 @@ export default {
         filtered = filtered.filter(log => log.document_type === this.filters.documentType);
       }
 
-      // Apply status change filter
-      if (this.filters.statusChange) {
-        filtered = filtered.filter(log => log.status_change === this.filters.statusChange);
-      }
+      // COMMENTED OUT: Apply status change filter (as requested by user)
+      // if (this.filters.statusChange) {
+      //   filtered = filtered.filter(log => log.status_change === this.filters.statusChange);
+      // }
 
       // Apply user search filter
       if (this.filters.user) {
@@ -648,13 +655,13 @@ export default {
         );
       }
 
-      // Apply IP address filter
-      if (this.filters.ipAddress) {
-        const query = this.filters.ipAddress.toLowerCase();
-        filtered = filtered.filter(log =>
-          log.ip_address.toLowerCase().includes(query)
-        );
-      }
+      // COMMENTED OUT: Apply IP address filter (as requested by user)
+      // if (this.filters.ipAddress) {
+      //   const query = this.filters.ipAddress.toLowerCase();
+      //   filtered = filtered.filter(log =>
+      //     log.ip_address.toLowerCase().includes(query)
+      //   );
+      // }
 
       this.filteredLogs = filtered;
       this.currentPage = 1;
