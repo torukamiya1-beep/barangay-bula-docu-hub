@@ -461,32 +461,31 @@ export default {
 
         let activityData = null;
 
-        // TEMPORARY FIX: Use legacy activity logs API directly (has proper document types)
-        // TODO: Switch back to comprehensive API once Railway deployment is fixed
+        // Primary approach: Use comprehensive activity logs API (union of audit_logs and request_status_history)
         try {
-          console.log('🔄 Loading from legacy activity logs API (with proper document types)...');
-          const legacyResponse = await activityLogService.getActivityLogs(this.filters, 1, 100);
+          console.log('🔄 Loading from comprehensive activity logs API (union implementation)...');
+          const comprehensiveResponse = await activityLogService.getComprehensiveActivityLogs(this.filters, 1, 100);
 
-          if (legacyResponse.success && legacyResponse.data && legacyResponse.data.activities && legacyResponse.data.activities.length > 0) {
-            console.log('✅ Loaded data from legacy activity logs API:', legacyResponse.data.activities.length, 'records');
-            activityData = legacyResponse.data.activities;
+          if (comprehensiveResponse.success && comprehensiveResponse.data && comprehensiveResponse.data.activities && comprehensiveResponse.data.activities.length > 0) {
+            console.log('✅ Loaded data from comprehensive activity logs API:', comprehensiveResponse.data.activities.length, 'records');
+            activityData = comprehensiveResponse.data.activities;
           } else {
-            throw new Error('Legacy API returned no data');
+            throw new Error('Comprehensive API returned no data');
           }
         } catch (primaryError) {
-          console.log('⚠️  Legacy activity logs API failed:', primaryError.message);
+          console.log('⚠️  Comprehensive activity logs API failed:', primaryError.message);
 
-          // Fallback 1: Try comprehensive activity logs API (from audit_logs table)
+          // Fallback 1: Try legacy activity logs API (document activities only)
           try {
-            console.log('🔄 Fallback: Loading from comprehensive activity logs API...');
-            const comprehensiveResponse = await activityLogService.getComprehensiveActivityLogs(this.filters, 1, 100);
+            console.log('🔄 Fallback: Loading from legacy activity logs API...');
+            const legacyResponse = await activityLogService.getActivityLogs(this.filters, 1, 100);
 
-            if (comprehensiveResponse.success && comprehensiveResponse.data && comprehensiveResponse.data.activities && comprehensiveResponse.data.activities.length > 0) {
-              console.log('✅ Loaded data from comprehensive activity logs API:', comprehensiveResponse.data.activities.length, 'records');
-              activityData = comprehensiveResponse.data.activities;
+            if (legacyResponse.success && legacyResponse.data && legacyResponse.data.activities && legacyResponse.data.activities.length > 0) {
+              console.log('✅ Loaded data from legacy activity logs API:', legacyResponse.data.activities.length, 'records');
+              activityData = legacyResponse.data.activities;
             }
           } catch (fallbackError) {
-            console.log('⚠️  Comprehensive activity logs API failed:', fallbackError.message);
+            console.log('⚠️  Legacy activity logs API failed:', fallbackError.message);
 
             // Final fallback: Try adminDocumentService (for document status changes)
             try {
