@@ -72,45 +72,24 @@
                   </button>
                 </div>
                 <div class="card-body" id="filtersCollapse" :class="{ 'collapse': !filtersExpanded }">
+                  <!-- Single row layout for all active filters -->
                   <div class="row">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                       <label class="form-label">Date From</label>
                       <input type="date" class="form-control" v-model="filters.dateFrom">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                       <label class="form-label">Date To</label>
                       <input type="date" class="form-control" v-model="filters.dateTo">
                     </div>
-                    <!-- COMMENTED OUT: Activity Type filter (as requested by user)
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Activity Type</label>
-                      <select class="form-select" v-model="filters.type">
-                        <option value="">All Types</option>
-                        <option value="login">Login</option>
-                        <option value="logout">Logout</option>
-                        <option value="document_request">Document Request</option>
-                        <option value="status_change">Status Change</option>
-                        <option value="approval">Approval</option>
-                        <option value="rejection">Rejection</option>
-                        <option value="user_management">User Management</option>
-                        <option value="payment">Payment</option>
-                        <option value="system">System</option>
-                        <option value="error">Error</option>
-                      </select>
-                    </div>
-                    -->
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                       <label class="form-label">User Type</label>
                       <select class="form-select" v-model="filters.userType">
                         <option value="">All User Types</option>
                         <option value="admin">Administrator</option>
-                        <option value="employee">Employee</option>
                         <option value="client">Client</option>
-                        <option value="system">System</option>
                       </select>
                     </div>
-                  </div>
-                  <div class="row">
                     <div class="col-md-3 mb-3">
                       <label class="form-label">Document Type</label>
                       <select class="form-select" v-model="filters.documentType">
@@ -119,32 +98,19 @@
                         <option value="Barangay Clearance">Barangay Clearance</option>
                       </select>
                     </div>
-                    <!-- COMMENTED OUT: Status Changes filter (as requested by user)
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Status Changes</label>
-                      <select class="form-select" v-model="filters.statusChange">
-                        <option value="">All Status Changes</option>
-                        <option value="pending">To Pending</option>
-                        <option value="approved">To Approved</option>
-                        <option value="processing">To Processing</option>
-                        <option value="ready_for_pickup">To Ready for Pickup</option>
-                        <option value="completed">To Completed</option>
-                        <option value="rejected">To Rejected</option>
-                        <option value="cancelled">To Cancelled</option>
-                      </select>
-                    </div>
-                    -->
                     <div class="col-md-3 mb-3">
                       <label class="form-label">User Search</label>
                       <input type="text" class="form-control" placeholder="Search by user name..." v-model="filters.user">
                     </div>
-                    <!-- COMMENTED OUT: IP Address filter (as requested by user)
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">IP Address</label>
-                      <input type="text" class="form-control" placeholder="Search by IP..." v-model="filters.ipAddress">
-                    </div>
-                    -->
                   </div>
+
+                  <!-- Commented out filters (as requested by user) -->
+                  <!--
+                  Activity Type filter - COMMENTED OUT
+                  Status Changes filter - COMMENTED OUT
+                  IP Address filter - COMMENTED OUT
+                  Employee option in User Type - REMOVED
+                  -->
                   <div class="text-end">
                     <button class="btn btn-primary btn-sm" @click="applyFilters">
                       <i class="fas fa-filter me-1"></i>
