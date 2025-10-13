@@ -690,7 +690,7 @@
           </div>
 
           <!-- Pagination -->
-          <div v-if="pagination.totalPages > 1" class="pagination-container">
+          <div v-if="pagination.totalItems > 10" class="pagination-container">
               <nav aria-label="Requests pagination">
                 <ul class="pagination pagination-sm justify-content-center mb-0">
                   <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
