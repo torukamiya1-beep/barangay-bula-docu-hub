@@ -166,13 +166,13 @@
                               >
                                 <i class="fas fa-eye"></i>
                               </button>
-                              <button
+                              <!-- <button
                                 class="btn btn-outline-success"
                                 @click="restoreUser(user)"
                                 title="Restore User"
                               >
                                 <i class="fas fa-undo"></i>
-                              </button>
+                              </button> -->
                             </div>
                           </td>
                         </tr>

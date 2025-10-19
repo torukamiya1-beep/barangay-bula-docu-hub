@@ -1096,7 +1096,7 @@ export default {
       if (this.formData.beneficiary.relationship_to_requestor === 'spouse') {
         return 'Click to upload spouse verification image';
       }
-      return 'Click to upload family Member Verification Image';
+      return 'Click to upload Philippine Statistics Authority (PSA) Image';
     },
 
     familyVerificationText() {
@@ -1104,7 +1104,7 @@ export default {
       if (this.formData.beneficiary.relationship_to_requestor === 'spouse') {
         return 'To verify that this person is indeed your spouse, please upload a clear photo of Marriage Application.';
       }
-      return 'To verify that this person is indeed your family member, please upload a clear photo of their valid ID (Driver\'s License, National ID, Passport, etc.).';
+      return 'To verify that this person is indeed your family member, please upload a clear photo of their Philippine Statistics Authority (PSA).';
     },
 
     // Debug computed property for submit button state
