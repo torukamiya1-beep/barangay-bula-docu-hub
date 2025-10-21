@@ -45,7 +45,7 @@
       <!-- Quick Actions Section -->
       <section class="quick-actions-section">
         <div class="container">
-          <div class="quick-actions-grid" style="display: flex; gap: 1rem;">
+          <div class="quick-actions-grid" style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button
               class="action-btn my-requests-btn"
               @click="goToMyRequests"
@@ -78,6 +78,26 @@
                 <h3 class="action-title">Online Transactions</h3>
                 <p class="action-description" v-if="canRequestDocuments">View your payment receipts and transaction history</p>
                 <p class="action-description" v-else>{{ statusMessage }}</p>
+              </div>
+              <div class="action-arrow">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+              </div>
+            </button>
+
+            <button
+              class="action-btn rejected-docs-btn"
+              @click="goToRejectedDocuments"
+              :disabled="loading"
+            >
+              <div class="action-icon">
+                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                <span v-if="!rejectedDocumentsLoading && rejectedDocumentsCount > 0" class="count-badge">
+                  {{ rejectedDocumentsCount }}
+                </span>
+              </div>
+              <div class="action-content">
+                <h3 class="action-title">Rejected Documents</h3>
+                <p class="action-description">View and reupload rejected documents</p>
               </div>
               <div class="action-arrow">
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
@@ -202,6 +222,10 @@ export default {
 
     // Help Dialog State
     const showHelpDialog = ref(false)
+
+    // Rejected documents count
+    const rejectedDocumentsCount = ref(0)
+    const rejectedDocumentsLoading = ref(false)
 
     // Help Data
     const helpData = ref({
@@ -354,6 +378,68 @@ export default {
     // Set up periodic residency status check
     let statusCheckInterval = null;
 
+    // Load rejected documents count
+    const loadRejectedDocumentsCount = async () => {
+      try {
+        rejectedDocumentsLoading.value = true;
+
+        // Import services dynamically
+        const [
+          residencyService,
+          supportingDocumentService,
+          beneficiaryVerificationService,
+          authorizationDocumentService,
+          api
+        ] = await Promise.all([
+          import('@/services/residencyService'),
+          import('@/services/supportingDocumentService'),
+          import('@/services/beneficiaryVerificationService'),
+          import('@/services/authorizationDocumentService'),
+          import('@/services/api')
+        ]);
+
+        // Load all rejected documents in parallel
+        const [residencyRes, supportingRes, beneficiaryRes, authorizationRes, pickupRes] = await Promise.all([
+          residencyService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          supportingDocumentService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          beneficiaryVerificationService.default.getRejectedVerifications().catch(() => ({ success: false, data: [] })),
+          authorizationDocumentService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          api.default.get('/authorized-pickup/rejected/list').catch(() => ({ data: { success: false, data: [] } }))
+        ]);
+
+        // Calculate total count
+        let totalCount = 0;
+
+        if (residencyRes.success && Array.isArray(residencyRes.data)) {
+          totalCount += residencyRes.data.length;
+        }
+
+        if (supportingRes.success && Array.isArray(supportingRes.data)) {
+          totalCount += supportingRes.data.length;
+        }
+
+        if (beneficiaryRes.success && Array.isArray(beneficiaryRes.data)) {
+          totalCount += beneficiaryRes.data.length;
+        }
+
+        if (authorizationRes.success && Array.isArray(authorizationRes.data)) {
+          totalCount += authorizationRes.data.length;
+        }
+
+        if (pickupRes.data && pickupRes.data.success && Array.isArray(pickupRes.data.data)) {
+          totalCount += pickupRes.data.data.length;
+        }
+
+        rejectedDocumentsCount.value = totalCount;
+
+      } catch (error) {
+        console.error('Error loading rejected documents count:', error);
+        rejectedDocumentsCount.value = 0;
+      } finally {
+        rejectedDocumentsLoading.value = false;
+      }
+    }
+
     // Initialize data on mount
     onMounted(async () => {
       try {
@@ -361,7 +447,8 @@ export default {
           loadUserData(),
           loadDocumentTypes(),
           loadUserStats(),
-          loadResidencyStatus()
+          loadResidencyStatus(),
+          loadRejectedDocumentsCount()
         ])
 
         // Set up periodic check for residency status updates (every 30 seconds)
@@ -446,6 +533,10 @@ export default {
       router.push({ name: 'ClientTransactions' })
     }
 
+    const goToRejectedDocuments = () => {
+      router.push({ name: 'RejectedDocuments' })
+    }
+
     const goToProfile = () => {
       router.push({ name: 'ClientProfile' })
     }
@@ -513,6 +604,10 @@ export default {
       residencyStatus,
       refreshingStatus,
 
+      // Rejected documents
+      rejectedDocumentsCount,
+      rejectedDocumentsLoading,
+
       // Methods
       handleSidebarToggle,
       handleUserDropdownToggle,
@@ -523,6 +618,7 @@ export default {
       scrollToServices,
       goToMyRequests,
       goToTransactions,
+      goToRejectedDocuments,
       goToProfile,
       openHelp,
       closeDialog,
@@ -666,6 +762,38 @@ export default {
   color: white;
   font-size: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 94, 162, 0.3);
+  position: relative; /* For positioning the badge */
+}
+
+.count-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .action-content {

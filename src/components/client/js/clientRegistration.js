@@ -51,7 +51,7 @@ export default {
         province_code: '',
         city_code: '',
         barangay_code: '',
-        postal_code: '',
+        postal_code: '9500',
         years_of_residency: null,
         months_of_residency: null
       },
@@ -119,7 +119,7 @@ export default {
         province_code: '',
         city_code: '',
         barangay_code: '',
-        postal_code: '',
+        postal_code: '9500',
         years_of_residency: null,
         months_of_residency: null
       };

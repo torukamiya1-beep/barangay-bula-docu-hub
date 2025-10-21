@@ -110,15 +110,15 @@
 
                 <!-- Documents Grid -->
                 <div v-else class="row">
-                  <!-- ID Document -->
-                  <div v-if="request.authorized_pickup?.id_image_path" class="col-md-6 mb-3">
+                  <!-- Valid ID -->
+                  <div v-if="getAuthDocByType('valid_id')" class="col-md-6 mb-3">
                     <div class="card h-100 document-card">
                       <!-- Document Preview -->
-                      <div class="card-img-top document-preview" @click="viewDocument('pickup-id')">
+                      <div class="card-img-top document-preview" @click="viewDocument(`auth-doc-${getAuthDocByType('valid_id').id}`)">
                         <img
-                          v-if="documentBlobUrls['pickup-id']"
-                          :src="documentBlobUrls['pickup-id']"
-                          alt="Pickup Person ID"
+                          v-if="documentBlobUrls[`auth-doc-${getAuthDocByType('valid_id').id}`]"
+                          :src="documentBlobUrls[`auth-doc-${getAuthDocByType('valid_id').id}`]"
+                          alt="Valid ID"
                           class="preview-image"
                           @error="handleImageError"
                         />
@@ -135,33 +135,61 @@
                       <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0">
                           <i class="fas fa-id-card me-2"></i>
-                          ID Document
+                          Valid ID
                         </h6>
-                        <!-- <span class="badge bg-info">Required</span> -->
+                        <span class="badge" :class="{
+                          'bg-success': getAuthDocByType('valid_id').verification_status === 'approved',
+                          'bg-danger': getAuthDocByType('valid_id').verification_status === 'rejected',
+                          'bg-warning text-dark': getAuthDocByType('valid_id').verification_status === 'pending'
+                        }">
+                          {{ formatDocStatus(getAuthDocByType('valid_id').verification_status) }}
+                        </span>
                       </div>
                       <div class="card-body">
                         <p class="card-text">
-                          <strong>File:</strong> {{ getFileName(request.authorized_pickup?.id_image_path) }}<br>
-                          <strong>Type:</strong> Government-issued ID
+                          <strong>File:</strong> {{ getFileName(getAuthDocByType('valid_id').file_path) }}<br>
+                          <strong>Size:</strong> {{ formatFileSize(getAuthDocByType('valid_id').file_size) }}
                         </p>
-                        <div class="d-grid">
-                          <button class="btn btn-outline-primary btn-sm" @click="viewDocument('pickup-id')">
+                        <div class="d-grid gap-2">
+                          <button class="btn btn-outline-primary btn-sm" @click="viewDocument(`auth-doc-${getAuthDocByType('valid_id').id}`)">
                             <i class="fas fa-eye me-1"></i>
                             View Document
                           </button>
+                          
+                          <!-- Approve/Reject Buttons for Pending Verification -->
+                          <div v-if="getAuthDocByType('valid_id').verification_status === 'pending'" class="btn-group mt-2">
+                            <button 
+                              class="btn btn-success btn-sm"
+                              @click="approveDocument(getAuthDocByType('valid_id').id, 'valid_id')"
+                              :disabled="processingDocs[getAuthDocByType('valid_id').id]"
+                              title="Approve Valid ID"
+                            >
+                              <i class="fas fa-check me-1"></i>
+                              Approve
+                            </button>
+                            <button 
+                              class="btn btn-danger btn-sm"
+                              @click="rejectDocument(getAuthDocByType('valid_id').id, 'valid_id')"
+                              :disabled="processingDocs[getAuthDocByType('valid_id').id]"
+                              title="Reject Valid ID"
+                            >
+                              <i class="fas fa-times me-1"></i>
+                              Reject
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Authorization Letter -->
-                  <div v-if="request.authorized_pickup?.authorization_letter_path" class="col-md-6 mb-3">
+                  <div v-if="getAuthDocByType('authorization_letter')" class="col-md-6 mb-3">
                     <div class="card h-100 document-card">
                       <!-- Document Preview -->
-                      <div class="card-img-top document-preview" @click="viewDocument('pickup-auth')">
+                      <div class="card-img-top document-preview" @click="viewDocument(`auth-doc-${getAuthDocByType('authorization_letter').id}`)">
                         <img
-                          v-if="documentBlobUrls['pickup-auth']"
-                          :src="documentBlobUrls['pickup-auth']"
+                          v-if="documentBlobUrls[`auth-doc-${getAuthDocByType('authorization_letter').id}`]"
+                          :src="documentBlobUrls[`auth-doc-${getAuthDocByType('authorization_letter').id}`]"
                           alt="Authorization Letter"
                           class="preview-image"
                           @error="handleImageError"
@@ -181,21 +209,59 @@
                           <i class="fas fa-file-signature me-2"></i>
                           Authorization Letter
                         </h6>
-                        <!-- <span class="badge bg-info">Required</span> -->
+                        <span class="badge" :class="{
+                          'bg-success': getAuthDocByType('authorization_letter').verification_status === 'approved',
+                          'bg-danger': getAuthDocByType('authorization_letter').verification_status === 'rejected',
+                          'bg-warning text-dark': getAuthDocByType('authorization_letter').verification_status === 'pending'
+                        }">
+                          {{ formatDocStatus(getAuthDocByType('authorization_letter').verification_status) }}
+                        </span>
                       </div>
                       <div class="card-body">
                         <p class="card-text">
-                          <strong>File:</strong> {{ getFileName(request.authorized_pickup?.authorization_letter_path) }}<br>
+                          <strong>File:</strong> {{ getFileName(getAuthDocByType('authorization_letter').file_path) }}<br>
                           <strong>Type:</strong> Signed authorization letter
                         </p>
-                        <div class="d-grid">
-                          <button class="btn btn-outline-primary btn-sm" @click="viewDocument('pickup-auth')">
+                        <div class="d-grid gap-2">
+                          <button class="btn btn-outline-primary btn-sm" @click="viewDocument(`auth-doc-${getAuthDocByType('authorization_letter').id}`)">
                             <i class="fas fa-eye me-1"></i>
                             View Document
                           </button>
+                          
+                          <!-- Approve/Reject Buttons for Pending Verification -->
+                          <div v-if="getAuthDocByType('authorization_letter').verification_status === 'pending'" class="btn-group mt-2">
+                            <button 
+                              class="btn btn-success btn-sm"
+                              @click="approveDocument(getAuthDocByType('authorization_letter').id, 'authorization_letter')"
+                              :disabled="processingDocs[getAuthDocByType('authorization_letter').id]"
+                              title="Approve Authorization Letter"
+                            >
+                              <i class="fas fa-check me-1"></i>
+                              Approve
+                            </button>
+                            <button 
+                              class="btn btn-danger btn-sm"
+                              @click="rejectDocument(getAuthDocByType('authorization_letter').id, 'authorization_letter')"
+                              :disabled="processingDocs[getAuthDocByType('authorization_letter').id]"
+                              title="Reject Authorization Letter"
+                            >
+                              <i class="fas fa-times me-1"></i>
+                              Reject
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <!-- Loading State for Authorization Documents -->
+                <div v-if="loadingAuthDocs" class="col-12 mt-3">
+                  <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Loading additional documents...</span>
+                    </div>
+                    <p class="mt-2 small text-muted">Loading additional authorization documents...</p>
                   </div>
                 </div>
               </div>
@@ -243,6 +309,8 @@
 </template>
 
 <script>
+import authorizationDocumentService from '@/services/authorizationDocumentService';
+import api from '@/services/api';
 
 export default {
   name: 'AuthorizedPickupDocumentsModal',
@@ -256,22 +324,25 @@ export default {
       default: false
     }
   },
-  emits: ['verify', 'reject'],
+  emits: ['verify', 'reject', 'verified', 'rejected'],
   
   data() {
     return {
       loading: false,
       error: null,
-      documentBlobUrls: {}
+      documentBlobUrls: {},
+      authorizationDocuments: [],
+      loadingAuthDocs: false,
+      processingDocs: {}
     };
   },
 
   computed: {
     hasDocuments() {
-      return this.request?.authorized_pickup && (
+      return (this.request?.authorized_pickup && (
         this.request.authorized_pickup.id_image_path ||
         this.request.authorized_pickup.authorization_letter_path
-      );
+      )) || (this.authorizationDocuments && this.authorizationDocuments.length > 0);
     },
 
     canVerify() {
@@ -303,27 +374,57 @@ export default {
 
   methods: {
     async loadDocuments() {
-      if (!this.request || !this.hasDocuments) return;
+      if (!this.request) return;
 
       this.loading = true;
       this.error = null;
       this.documentBlobUrls = {};
+      this.authorizationDocuments = [];
 
       try {
-        // Load ID document
+        // Load ID document from authorized_pickup_persons table
         if (this.request.authorized_pickup?.id_image_path) {
           await this.loadDocument('pickup-id', this.request.authorized_pickup.id_image_path);
         }
 
-        // Load authorization letter
+        // Load authorization letter from authorized_pickup_persons table
         if (this.request.authorized_pickup?.authorization_letter_path) {
           await this.loadDocument('pickup-auth', this.request.authorized_pickup.authorization_letter_path);
+        }
+
+        // Load additional authorization documents from authorization_documents table
+        if (this.request.authorized_pickup?.id) {
+          await this.loadAuthorizationDocuments(this.request.authorized_pickup.id);
         }
       } catch (error) {
         console.error('Error loading pickup documents:', error);
         this.error = 'Failed to load documents. Please try again.';
       } finally {
         this.loading = false;
+      }
+    },
+
+    async loadAuthorizationDocuments(pickupPersonId) {
+      this.loadingAuthDocs = true;
+      try {
+        // Call backend API to get authorization documents for this pickup person
+        const response = await api.get(`/authorization-documents/pickup-person/${pickupPersonId}`);
+        
+        if (response.data && response.data.data) {
+          this.authorizationDocuments = response.data.data;
+          console.log('Loaded authorization documents:', this.authorizationDocuments);
+          
+          // Load document previews
+          for (const doc of this.authorizationDocuments) {
+            const docKey = `auth-doc-${doc.id}`;
+            await this.loadDocument(docKey, doc.file_path);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading authorization documents:', error);
+        // Don't throw error, just log it - these documents are optional
+      } finally {
+        this.loadingAuthDocs = false;
       }
     },
 
@@ -382,28 +483,15 @@ export default {
     },
 
     viewDocument(type) {
-      let filename = '';
-      switch (type) {
-        case 'pickup-id':
-          filename = this.request.authorized_pickup?.id_image_path;
-          break;
-        case 'pickup-auth':
-          filename = this.request.authorized_pickup?.authorization_letter_path;
-          break;
-        default:
-          return;
-      }
-
-      if (!filename) return;
-
-      // Convert database path to web-accessible URL
-      const webUrl = this.convertPathToUrl(filename);
-      const API_BASE_URL = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
-      const fullUrl = `${API_BASE_URL}${webUrl}`;
-      console.log(`Opening document: ${fullUrl}`);
-
-      if (webUrl) {
-        window.open(fullUrl, '_blank');
+      // Check if we have a blob URL for this document
+      const blobUrl = this.documentBlobUrls[type];
+      
+      if (blobUrl) {
+        // Open the blob URL in a new tab
+        window.open(blobUrl, '_blank');
+      } else {
+        console.error('Document not loaded:', type);
+        alert('Document is still loading. Please wait a moment and try again.');
       }
     },
 
@@ -450,6 +538,171 @@ export default {
     handleImageError(event) {
       console.error('Image failed to load:', event.target.src);
       event.target.style.display = 'none';
+    },
+
+    // Approve authorization document
+    async approveAuthorizationDocument(documentId) {
+      if (!confirm('Are you sure you want to approve this authorization document?')) return;
+      
+      try {
+        const result = await authorizationDocumentService.updateDocumentStatus(documentId, 'approved');
+        
+        if (result.success) {
+          this.$toast?.success('Authorization document approved successfully');
+          // Reload documents to show updated status
+          if (this.request.authorized_pickup?.id) {
+            await this.loadAuthorizationDocuments(this.request.authorized_pickup.id);
+          }
+        } else {
+          this.$toast?.error(result.message || 'Failed to approve document');
+        }
+      } catch (error) {
+        console.error('Error approving authorization document:', error);
+        this.$toast?.error('An error occurred while approving the document');
+      }
+    },
+
+    // Reject authorization document
+    async rejectAuthorizationDocument(documentId) {
+      if (!confirm('Are you sure you want to reject this authorization document? The client will be notified to reupload.')) return;
+      
+      try {
+        const result = await authorizationDocumentService.updateDocumentStatus(documentId, 'rejected');
+        
+        if (result.success) {
+          this.$toast?.warning('Authorization document rejected. Client will be notified.');
+          // Reload documents to show updated status
+          if (this.request.authorized_pickup?.id) {
+            await this.loadAuthorizationDocuments(this.request.authorized_pickup.id);
+          }
+        } else {
+          this.$toast?.error(result.message || 'Failed to reject document');
+        }
+      } catch (error) {
+        console.error('Error rejecting authorization document:', error);
+        this.$toast?.error('An error occurred while rejecting the document');
+      }
+    },
+
+    getDocumentTypeLabel(type) {
+      const labels = {
+        'authorization_letter': 'Authorization Letter',
+        'valid_id': 'Valid ID',
+        'additional_proof': 'Additional Proof'
+      };
+      return labels[type] || type;
+    },
+
+    formatFileSize(bytes) {
+      if (!bytes) return 'Unknown size';
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    },
+
+    formatPickupVerificationStatus(status) {
+      if (!status || status === 'pending') return 'PENDING';
+      if (status === 'verified') return 'VERIFIED';
+      if (status === 'rejected') return 'REJECTED';
+      return status.toUpperCase();
+    },
+
+    // Approve individual authorization document
+    async approveDocument(documentId, documentType) {
+      const docName = documentType === 'valid_id' ? 'Valid ID' : 'Authorization Letter';
+      if (!confirm(`Are you sure you want to approve this ${docName}?`)) return;
+      
+      try {
+        this.processingDocs[documentId] = true;
+
+        // Call backend API to approve document
+        const response = await api.patch(`/authorization-documents/${documentId}/status`, {
+          verification_status: 'approved'
+        });
+
+        if (response.data.success) {
+          this.$toast?.success(`${docName} approved successfully`);
+          // Reload authorization documents to get updated status
+          await this.loadAuthorizationDocuments(this.request.authorized_pickup.id);
+          // Emit event to parent
+          this.$emit('verified');
+          
+          // Close the modal
+          const modalElement = document.getElementById('authorizedPickupDocumentsModal');
+          if (modalElement) {
+            const modal = window.bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+              modal.hide();
+            }
+          }
+        } else {
+          this.$toast?.error(response.data.message || `Failed to approve ${docName}`);
+        }
+      } catch (error) {
+        console.error(`Error approving ${documentType}:`, error);
+        this.$toast?.error(error.response?.data?.message || 'An error occurred while approving');
+      } finally {
+        this.processingDocs[documentId] = false;
+      }
+    },
+
+    // Reject individual authorization document
+    async rejectDocument(documentId, documentType) {
+      const docName = documentType === 'valid_id' ? 'Valid ID' : 'Authorization Letter';
+      if (!confirm(`Are you sure you want to reject this ${docName}? The client will be notified.`)) return;
+      
+      try {
+        this.processingDocs[documentId] = true;
+
+        // Call backend API to reject document
+        const response = await api.patch(`/authorization-documents/${documentId}/status`, {
+          verification_status: 'rejected'
+        });
+
+        if (response.data.success) {
+          this.$toast?.warning(`${docName} rejected. Client will be notified.`);
+          // Reload authorization documents to get updated status
+          await this.loadAuthorizationDocuments(this.request.authorized_pickup.id);
+          // Emit event to parent
+          this.$emit('rejected');
+          
+          // Close the modal
+          const modalElement = document.getElementById('authorizedPickupDocumentsModal');
+          if (modalElement) {
+            const modal = window.bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+              modal.hide();
+            }
+          }
+        } else {
+          this.$toast?.error(response.data.message || `Failed to reject ${docName}`);
+        }
+      } catch (error) {
+        console.error(`Error rejecting ${documentType}:`, error);
+        this.$toast?.error(error.response?.data?.message || 'An error occurred while rejecting');
+      } finally {
+        this.processingDocs[documentId] = false;
+      }
+    },
+
+    // Get authorization document by type
+    getAuthDocByType(type) {
+      return this.authorizationDocuments.find(doc => doc.document_type === type);
+    },
+
+    // Format document type for display
+    formatDocType(type) {
+      if (type === 'valid_id') return 'Valid ID';
+      if (type === 'authorization_letter') return 'Authorization Letter';
+      return type;
+    },
+
+    // Format verification status
+    formatDocStatus(status) {
+      if (!status || status === 'pending') return 'PENDING';
+      if (status === 'approved') return 'APPROVED';
+      if (status === 'rejected') return 'REJECTED';
+      return status.toUpperCase();
     }
   },
 

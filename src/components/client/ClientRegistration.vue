@@ -349,17 +349,8 @@
                           placeholder="e.g., Green Valley, Sunrise Village"
                         >
                       </div>
-                      <div class="col-md-6 mb-3">
-                        <label for="postalCode" class="form-label">Postal Code (Optional)</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="postalCode"
-                          v-model="profileForm.postal_code"
-                          placeholder="e.g., 4027"
-                          maxlength="10"
-                        >
-                      </div>
+                      <!-- Postal Code hidden (frontend-only). Default value set to '9500' in component data. -->
+                      <input type="hidden" id="postalCode" v-model="profileForm.postal_code" />
                     </div>
 
                   <!-- Residency Information -->

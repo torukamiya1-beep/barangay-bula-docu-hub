@@ -106,11 +106,39 @@
                           <strong>Size:</strong> {{ formatFileSize(document.file_size) }}<br>
                           <strong>Uploaded:</strong> {{ formatDate(document.created_at) }}
                         </p>
-                        <div class="d-grid">
+                        <div class="d-grid gap-2">
                           <button class="btn btn-outline-primary btn-sm" @click="viewDocument(document)">
                             <i class="fas fa-eye me-1"></i>
                             View Document
                           </button>
+                          
+                          <!-- Individual Approve/Reject Buttons -->
+                          <div v-if="document.verification_status === 'pending'" class="btn-group" role="group">
+                            <button 
+                              class="btn btn-success btn-sm"
+                              @click="approveDocument(document)"
+                              :disabled="processingDocuments[document.id]"
+                            >
+                              <span v-if="processingDocuments[document.id] === 'approving'" class="spinner-border spinner-border-sm me-1"></span>
+                              <i v-else class="fas fa-check me-1"></i>
+                              Approve
+                            </button>
+                            <button 
+                              class="btn btn-danger btn-sm"
+                              @click="rejectDocument(document)"
+                              :disabled="processingDocuments[document.id]"
+                            >
+                              <span v-if="processingDocuments[document.id] === 'rejecting'" class="spinner-border spinner-border-sm me-1"></span>
+                              <i v-else class="fas fa-times me-1"></i>
+                              Reject
+                            </button>
+                          </div>
+                          <div v-else-if="document.verification_status === 'approved'" class="alert alert-success mb-0 py-1">
+                            <i class="fas fa-check-circle me-1"></i> Approved
+                          </div>
+                          <div v-else-if="document.verification_status === 'rejected'" class="alert alert-danger mb-0 py-1">
+                            <i class="fas fa-times-circle me-1"></i> Rejected
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -191,7 +219,8 @@ export default {
       error: null,
       selectedDocument: null,
       documentBlobUrls: {}, // Store blob URLs for thumbnails
-      isDestroyed: false // Track component lifecycle
+      isDestroyed: false, // Track component lifecycle
+      processingDocuments: {} // Track processing state for each document
     };
   },
   watch: {
@@ -371,6 +400,88 @@ export default {
       const sizes = ['Bytes', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(1024));
       return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    },
+
+    async approveDocument(document) {
+      if (!confirm(`Are you sure you want to approve this ${this.formatDocumentType(document.document_type)}?`)) {
+        return;
+      }
+
+      this.processingDocuments[document.id] = 'approving';
+
+      try {
+        const response = await residencyService.updateDocumentStatus(document.id, 'approved');
+        
+        if (response.success) {
+          // Wait for next tick before updating to prevent DOM race conditions
+          await this.$nextTick();
+          
+          // Update document status in local array using proper Vue 3 reactivity
+          const docIndex = this.documents.findIndex(d => d.id === document.id);
+          if (docIndex !== -1) {
+            // Create a new object to trigger reactivity properly
+            this.documents[docIndex] = {
+              ...this.documents[docIndex],
+              verification_status: 'approved'
+            };
+          }
+
+          // Show success message
+          this.$toast?.success('Document approved successfully');
+          
+          // Emit event to parent
+          this.$emit('document-approved', document);
+        } else {
+          throw new Error(response.message || 'Failed to approve document');
+        }
+      } catch (error) {
+        console.error('Failed to approve document:', error);
+        this.$toast?.error(error.message || 'Failed to approve document');
+      } finally {
+        await this.$nextTick();
+        delete this.processingDocuments[document.id];
+      }
+    },
+
+    async rejectDocument(document) {
+      if (!confirm(`Are you sure you want to reject this ${this.formatDocumentType(document.document_type)}? The client will be notified to reupload.`)) {
+        return;
+      }
+
+      this.processingDocuments[document.id] = 'rejecting';
+
+      try {
+        const response = await residencyService.updateDocumentStatus(document.id, 'rejected');
+        
+        if (response.success) {
+          // Wait for next tick before updating to prevent DOM race conditions
+          await this.$nextTick();
+          
+          // Update document status in local array using proper Vue 3 reactivity
+          const docIndex = this.documents.findIndex(d => d.id === document.id);
+          if (docIndex !== -1) {
+            // Create a new object to trigger reactivity properly
+            this.documents[docIndex] = {
+              ...this.documents[docIndex],
+              verification_status: 'rejected'
+            };
+          }
+
+          // Show success message
+          this.$toast?.success('Document rejected. Client has been notified.');
+          
+          // Emit event to parent
+          this.$emit('document-rejected', document);
+        } else {
+          throw new Error(response.message || 'Failed to reject document');
+        }
+      } catch (error) {
+        console.error('Failed to reject document:', error);
+        this.$toast?.error(error.message || 'Failed to reject document');
+      } finally {
+        await this.$nextTick();
+        delete this.processingDocuments[document.id];
+      }
     }
   }
 };

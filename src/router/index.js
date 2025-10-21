@@ -108,6 +108,15 @@ const routes = [
     }
   },
   {
+    path: '/client/rejected-documents',
+    name: 'RejectedDocuments',
+    component: () => import('@/components/client/RejectedDocuments.vue'),
+    meta: {
+      title: 'Rejected Documents',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/client/request/:id',
     name: 'RequestDetails',
     component: () => import('@/components/client/RequestDetails.vue'),

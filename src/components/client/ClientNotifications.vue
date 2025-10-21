@@ -331,6 +331,50 @@ export default {
             targetRoute = await this.handleDocumentReadyNavigation(notificationData);
             break;
 
+          case 'document_approved':
+            // Navigate to dashboard or show success message
+            targetRoute = { name: 'NewDocumentRequest' };
+            this.showSuccessToast('Document approved! You can now proceed with your requests.');
+            break;
+
+          case 'document_rejected':
+            // Navigate to rejected documents page
+            targetRoute = { name: 'RejectedDocuments' };
+            break;
+
+          case 'supporting_document_approved':
+            // Navigate to dashboard
+            targetRoute = { name: 'NewDocumentRequest' };
+            this.showSuccessToast('Supporting document approved!');
+            break;
+
+          case 'supporting_document_rejected':
+            // Navigate to rejected documents page
+            targetRoute = { name: 'RejectedDocuments' };
+            break;
+
+          case 'beneficiary_verification_approved':
+            // Navigate to dashboard
+            targetRoute = { name: 'NewDocumentRequest' };
+            this.showSuccessToast('Beneficiary verification approved!');
+            break;
+
+          case 'beneficiary_verification_rejected':
+            // Navigate to rejected documents page
+            targetRoute = { name: 'RejectedDocuments' };
+            break;
+
+          case 'authorization_document_approved':
+            // Navigate to dashboard
+            targetRoute = { name: 'NewDocumentRequest' };
+            this.showSuccessToast('Authorization document approved!');
+            break;
+
+          case 'authorization_document_rejected':
+            // Navigate to rejected documents page
+            targetRoute = { name: 'RejectedDocuments' };
+            break;
+
           case 'request_approved':
           case 'request_rejected':
             targetRoute = await this.handleRequestStatusNavigation(notificationData);
@@ -578,6 +622,14 @@ export default {
         'status_change': 'fas fa-sync-alt text-info',
         'payment_confirmed': 'fas fa-credit-card text-success',
         'document_ready': 'fas fa-file-check text-success',
+        'document_approved': 'fas fa-check-circle text-success',
+        'document_rejected': 'fas fa-times-circle text-danger',
+        'supporting_document_approved': 'fas fa-check-circle text-success',
+        'supporting_document_rejected': 'fas fa-times-circle text-danger',
+        'beneficiary_verification_approved': 'fas fa-check-circle text-success',
+        'beneficiary_verification_rejected': 'fas fa-times-circle text-danger',
+        'authorization_document_approved': 'fas fa-check-circle text-success',
+        'authorization_document_rejected': 'fas fa-times-circle text-danger',
         'request_update': 'fas fa-edit text-warning',
         'system_alert': 'fas fa-exclamation-triangle text-danger',
         'test': 'fas fa-vial text-secondary',

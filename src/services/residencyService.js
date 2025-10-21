@@ -168,6 +168,55 @@ class ResidencyService {
     };
     return statusClasses[status] || 'bg-secondary';
   }
+
+  /**
+   * Update individual document verification status (Admin only)
+   */
+  async updateDocumentStatus(documentId, status) {
+    try {
+      const response = await api.patch(`${this.baseURL}/documents/${documentId}/status`, {
+        verification_status: status
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Get rejected documents for current client
+   */
+  async getRejectedDocuments() {
+    try {
+      const response = await api.get(`${this.baseURL}/documents/rejected/list`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Reupload a rejected document
+   * @param {number} documentId - The document ID
+   * @param {File} file - The file to upload
+   * @param {string} documentType - The document type (utility_bill, barangay_certificate, valid_id, lease_contract, other)
+   */
+  async reuploadDocument(documentId, file, documentType) {
+    try {
+      const formData = new FormData();
+      // Use the document type as the field name to match backend middleware expectations
+      formData.append(documentType, file);
+
+      const response = await api.post(`${this.baseURL}/documents/${documentId}/reupload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
 }
 
 export default new ResidencyService();

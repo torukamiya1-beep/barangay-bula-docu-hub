@@ -45,118 +45,6 @@
             <button type="button" class="btn-close" @click="errorMessage = ''" aria-label="Close"></button>
           </div>
 
-          <!-- Page Header -->
-           <!-- ill comment this for now because I dont need thus much -->
-          <!-- <div class="row mb-4">
-            <div class="col-12">
-              <div class="d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                  <p class="text-muted mb-0">
-                    <span v-if="lastRefresh" class="ms-2 small">
-                      <i class="fas fa-clock text-muted"></i>
-                      Last updated: {{ formatTime(lastRefresh) }}
-                    </span>
-                  </p>
-                </div>
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="real-time-status me-2">
-                    <span class="badge" :class="autoRefreshEnabled ? 'bg-success' : 'bg-secondary'">
-                      <i class="fas fa-circle pulse" v-if="autoRefreshEnabled"></i>
-                      <i class="fas fa-pause" v-else></i>
-                      {{ autoRefreshEnabled ? 'Live' : 'Paused' }}
-                    </span>
-                  </div>
-
-                  <button class="btn btn-outline-secondary btn-sm" @click="toggleAutoRefresh" :title="autoRefreshEnabled ? 'Disable auto-refresh' : 'Enable auto-refresh'">
-                    <i class="fas" :class="autoRefreshEnabled ? 'fa-pause' : 'fa-play'"></i>
-                  </button>
-                  <button class="btn btn-outline-primary btn-sm" @click="showFilters = !showFilters">
-                    <i class="fas fa-filter me-1"></i>
-                    {{ showFilters ? 'Hide' : 'Show' }} Filters
-                  </button>
-                  <div class="btn-group">
-                    <button class="btn btn-success btn-sm" @click="exportRequests" :disabled="loading">
-                      <i class="fas fa-download me-1"></i>
-                      Export CSV
-                    </button>
-                    <button class="btn btn-success btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" :disabled="loading">
-                      <span class="visually-hidden">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" @click.prevent="exportRequests">
-                        <i class="fas fa-file-csv me-2"></i>Export as CSV
-                      </a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="exportRequestsToExcel">
-                        <i class="fas fa-file-excel me-2"></i>Export as Excel (Comprehensive)
-                      </a></li>
-                    </ul>
-                  </div>
-                  <button class="btn btn-primary btn-sm" @click="refreshRequestsData" :disabled="loading">
-                    <i class="fas fa-sync-alt me-1" :class="{ 'fa-spin': loading }"></i>
-                    Refresh
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
-          <!-- Request Statistics -->
-           <!-- I dont need statistics for now -->
-          <!-- <div class="row mb-3">
-            <div class="col-6 col-md-3 mb-2">
-              <div class="card border-left-primary shadow py-1">
-                <div class="card-body p-2">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                      <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Requests</div>
-                      <div class="h6 mb-0 fw-bold text-dark">{{ requestStats.total || 0 }}</div>
-                    </div>
-                    <i class="fas fa-file-alt fa-lg text-muted ms-2"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3 mb-2">
-              <div class="card border-left-warning shadow py-1">
-                <div class="card-body p-2">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                      <div class="text-xs fw-bold text-warning text-uppercase mb-1">Pending</div>
-                      <div class="h6 mb-0 fw-bold text-dark">{{ requestStats.pending || 0 }}</div>
-                    </div>
-                    <i class="fas fa-clock fa-lg text-muted ms-2"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3 mb-2">
-              <div class="card border-left-success shadow py-1">
-                <div class="card-body p-2">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                      <div class="text-xs fw-bold text-success text-uppercase mb-1">Completed</div>
-                      <div class="h6 mb-0 fw-bold text-dark">{{ requestStats.completed || 0 }}</div>
-                    </div>
-                    <i class="fas fa-check-circle fa-lg text-muted ms-2"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3 mb-2">
-              <div class="card border-left-info shadow py-1">
-                <div class="card-body p-2">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                      <div class="text-xs fw-bold text-info text-uppercase mb-1">Approved</div>
-                      <div class="h6 mb-0 fw-bold text-dark">{{ requestStats.approved || 0 }}</div>
-                    </div>
-                    <i class="fas fa-thumbs-up fa-lg text-muted ms-2"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
           <!-- Filters Panel -->
           <div v-if="showFilters" class="card shadow mb-4">
             <div class="card-body">
@@ -251,18 +139,6 @@
           <!-- View Toggle -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
-              <!-- I dont need this card and table mode buttons -->
-              <!-- <div class="btn-group" role="group" aria-label="View toggle">
-                <input type="radio" class="btn-check" name="viewMode" id="cardView" v-model="viewMode" value="card" autocomplete="off">
-                <label class="btn btn-outline-primary btn-sm" for="cardView">
-                  <i class="fas fa-th-large me-1"></i>Cards
-                </label>
-
-                <input type="radio" class="btn-check" name="viewMode" id="tableView" v-model="viewMode" value="table" autocomplete="off">
-                <label class="btn btn-outline-primary btn-sm" for="tableView">
-                  <i class="fas fa-table me-1"></i>Table
-                </label>
-              </div> -->
 
               <div class="d-flex align-items-center gap-2">
                 <span class="text-muted small">
@@ -284,14 +160,6 @@
                   </button>
                 </div>
             </div>
-
-            <!-- I dont need this for now. If my prof see thiis I might be in trouble -->
-            <!-- <div class="d-flex align-items-center gap-2">
-              <button class="btn btn-sm btn-outline-secondary" @click="selectAllRequests" v-if="requests.length > 0">
-                <i class="fas fa-check-square me-1"></i>
-                {{ selectedRequests.length === requests.length ? 'Deselect All' : 'Select All' }}
-              </button>
-            </div> -->
           </div>
 
           <!-- Card View -->
@@ -582,15 +450,6 @@
             <div v-else class="compact-table-wrapper">
               <!-- Table Header -->
               <div class="compact-table-header">
-                <!-- I dont want to use this check box for now -->
-                <!-- <div class="header-cell selection-header">
-                  <input
-                    type="checkbox"
-                    class="form-check-input"
-                    :checked="selectedRequests.length === requests.length && requests.length > 0"
-                    @change="selectAllRequests"
-                  >
-                </div> -->
                 <div class="header-cell">Request ID</div>
                 <div class="header-cell">Client</div>
                 <div class="header-cell">Document</div>
@@ -605,17 +464,6 @@
                 <div v-for="request in requests" :key="request.id"
                      class="compact-row"
                      :class="{ 'selected': selectedRequests.includes(request.id) }">
-
-                  <!-- Selection -->
-                  <!-- I dont want to use this check box for now -->
-                  <!-- <div class="row-cell selection-cell">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      :checked="selectedRequests.includes(request.id)"
-                      @change="toggleRequestSelection(request.id)"
-                    >
-                  </div> -->
 
                   <!-- Request ID -->
                   <div class="row-cell request-id-cell">
@@ -768,21 +616,6 @@
                                 </p>
                               </div>
 
-                              <!-- I will comment priority for now  -->
-                              <!-- <div class="mb-3">
-                                <label class="form-label fw-bold">Priority</label>
-                                <p class="mb-0">
-                                  <span class="badge" :class="currentRequest.priority === 'high' ? 'bg-danger' : currentRequest.priority === 'medium' ? 'bg-warning' : 'bg-secondary'">
-                                    {{ currentRequest.priority || 'Normal' }}
-                                  </span>
-                                </p>
-                              </div> -->
-
-                              <!-- I will comment priority for now  -->
-                              <!-- <div class="mb-3">
-                                <label class="form-label fw-bold">Delivery Method</label>
-                                <p class="mb-0">{{ currentRequest.delivery_method || 'Pickup' }}</p>
-                              </div> -->
                               <div class="mb-3">
                                 <label class="form-label fw-bold">Date Submitted</label>
                                 <p class="mb-0">{{ formatDateTime(currentRequest.requested_at) }}</p>
@@ -1078,13 +911,14 @@
                             <div class="col-12">
                               <div class="mb-3">
                                 <label class="form-label fw-bold">Family Member Verification</label>
-                                <div class="d-flex align-items-center gap-3">
-                                  <!-- I dont want to use or see the status for now in the frontend -->
-                                  <!-- <div class="verification-status">
+                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                  <!-- Verification Status Badge -->
+                                  <div class="verification-status">
                                     <span class="badge" :class="getBeneficiaryVerificationStatusClass(currentRequest?.beneficiary?.verification_status)">
                                       {{ getBeneficiaryVerificationStatusText(currentRequest?.beneficiary?.verification_status) }}
                                     </span>
-                                  </div> -->
+                                  </div>
+                                  
                                   <button
                                     class="btn btn-outline-primary btn-sm"
                                     @click="viewVerificationImage(currentRequest.id, 'beneficiary')"
@@ -1092,6 +926,26 @@
                                   >
                                     <i class="fas fa-eye me-1"></i>View Verification Image
                                   </button>
+                                  
+                                  <!-- Approve/Reject Buttons for Pending Verifications -->
+                                  <div v-if="currentRequest?.beneficiary?.verification_status === 'pending'" class="btn-group">
+                                    <button 
+                                      class="btn btn-sm btn-success"
+                                      @click="approveBeneficiaryVerification(currentRequest.beneficiary.id)"
+                                      title="Approve beneficiary verification"
+                                    >
+                                      <i class="fas fa-check me-1"></i>
+                                      Approve
+                                    </button>
+                                    <button 
+                                      class="btn btn-sm btn-danger"
+                                      @click="rejectBeneficiaryVerification(currentRequest.beneficiary.id)"
+                                      title="Reject beneficiary verification"
+                                    >
+                                      <i class="fas fa-times me-1"></i>
+                                      Reject
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1520,6 +1374,37 @@
                                       <i class="fas fa-clock me-1"></i>
                                       Uploaded {{ formatDate(document.created_at) }}
                                     </small>
+                                    
+                                    <!-- Verification Status Badge -->
+                                    <div v-if="document.verification_status" class="mt-2">
+                                      <span class="badge" :class="{
+                                        'bg-success': document.verification_status === 'approved',
+                                        'bg-danger': document.verification_status === 'rejected',
+                                        'bg-warning text-dark': document.verification_status === 'pending'
+                                      }">
+                                        {{ document.verification_status.toUpperCase() }}
+                                      </span>
+                                    </div>
+                                    
+                                    <!-- Approve/Reject Buttons for Pending Documents -->
+                                    <div v-if="document.verification_status === 'pending'" class="btn-group mt-2 w-100">
+                                      <button 
+                                        class="btn btn-sm btn-success"
+                                        @click="approveSupportingDocument(document.id)"
+                                        title="Approve this document"
+                                      >
+                                        <i class="fas fa-check me-1"></i>
+                                        Approve
+                                      </button>
+                                      <button 
+                                        class="btn btn-sm btn-danger"
+                                        @click="rejectSupportingDocument(document.id)"
+                                        title="Reject this document"
+                                      >
+                                        <i class="fas fa-times me-1"></i>
+                                        Reject
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1612,40 +1497,8 @@
                             <label class="form-label fw-bold">Payment Method</label>
                             <p class="mb-0">{{ currentRequest.payment_method || 'Not specified' }}</p>
                           </div>
-
-                          <!-- ill comment this for now because I dont need this to show -->
-                          <!-- <div class="mb-3">
-                            <label class="form-label fw-bold">Payment Status</label>
-                            <p class="mb-0">
-                              <span class="badge" :class="getPaymentStatusColor(currentRequest.payment_status)">
-                                {{ formatPaymentStatus(currentRequest.payment_status) }}
-                              </span>
-                            </p>
-                          </div> -->
                           
                           <div class="row">
-
-                             <!-- ill comment this for now because I dont need base fees to show -->
-                            <!-- <div class="col-6">
-                              <div class="mb-2">
-                                <label class="form-label fw-bold small">Base Fee</label>
-                                <p class="mb-0">{{ formatCurrency(currentRequest.base_fee) }}</p>
-                              </div>
-                            </div> -->
-
-                             <!-- ill comment this for now because I dont need these fees to show -->
-                            <!-- <div class="col-6">
-                              <div class="mb-2">
-                                <label class="form-label fw-bold small">Additional Fees</label>
-                                <p class="mb-0">{{ formatCurrency(currentRequest.additional_fees) }}</p>
-                              </div>
-                            </div>
-                            <div class="col-6">
-                              <div class="mb-2">
-                                <label class="form-label fw-bold small">Processing Fee</label>
-                                <p class="mb-0">{{ formatCurrency(currentRequest.processing_fee) }}</p>
-                              </div>
-                            </div> -->
                             <div class="col-6">
                               <div class="mb-2">
                                 <label class="form-label fw-bold small">Total Amount</label>
@@ -1654,110 +1507,6 @@
                             </div>
                           </div>
 
-                           <!-- ill comment this for now because I dont need this to show -->
-                          <!-- <div v-if="needsPaymentVerification(currentRequest)" class="mt-4 p-3 border rounded bg-light">
-                            <h6 class="text-primary mb-3">
-                              <i class="fas fa-money-bill me-2"></i>
-                              Verify In-Person Payment
-                            </h6>
-                            <div class="row">
-                              <div class="col-md-6">
-                                <div class="mb-3">
-                                  <label class="form-label fw-bold">Amount Received *</label>
-                                  <input
-                                    type="number"
-                                    class="form-control"
-                                    v-model="paymentVerificationForm.amount_received"
-                                    :min="currentRequest.total_document_fee || currentRequest.total_fee"
-                                    step="0.01"
-                                    placeholder="Enter amount received"
-                                  >
-                                </div>
-                              </div>
-                              <div class="col-md-6">
-                                <div class="mb-3">
-                                  <label class="form-label fw-bold">Receipt Number</label>
-                                  <input
-                                    type="text"
-                                    class="form-control"
-                                    v-model="paymentVerificationForm.receipt_number"
-                                    placeholder="Enter receipt number"
-                                  >
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="d-grid">
-                              <button
-                                class="btn btn-success"
-                                @click="verifyInPersonPayment"
-                                :disabled="!paymentVerificationForm.amount_received || paymentVerificationForm.loading"
-                              >
-                                <i class="fas fa-check-circle me-1"></i>
-                                <span v-if="paymentVerificationForm.loading">
-                                  <i class="fas fa-spinner fa-spin me-1"></i>
-                                  Verifying...
-                                </span>
-                                <span v-else>Verify Payment</span>
-                              </button>
-                            </div>
-                          </div> -->
-
-                           <!-- ill comment this for now because I dont need this to show -->
-                          <!-- <div v-if="canSchedulePickup(currentRequest)" class="mt-4 p-3 border rounded bg-light">
-                            <h6 class="text-info mb-3">
-                              <i class="fas fa-calendar-alt me-2"></i>
-                              Schedule Pickup Appointment
-                            </h6>
-                            <div class="row">
-                              <div class="col-md-4">
-                                <div class="mb-3">
-                                  <label class="form-label fw-bold">Date *</label>
-                                  <input
-                                    type="date"
-                                    class="form-control"
-                                    v-model="pickupScheduleForm.scheduled_date"
-                                    :min="getTomorrowDate()"
-                                  >
-                                </div>
-                              </div>
-                              <div class="col-md-4">
-                                <div class="mb-3">
-                                  <label class="form-label fw-bold">Start Time *</label>
-                                  <input
-                                    type="time"
-                                    class="form-control"
-                                    v-model="pickupScheduleForm.scheduled_time_start"
-                                  >
-                                </div>
-                              </div>
-                              <div class="col-md-4">
-                                <div class="mb-3">
-                                  <label class="form-label fw-bold">End Time *</label>
-                                  <input
-                                    type="time"
-                                    class="form-control"
-                                    v-model="pickupScheduleForm.scheduled_time_end"
-                                  >
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="d-grid">
-                              <button
-                                class="btn btn-info"
-                                @click="schedulePickup"
-                                :disabled="!isPickupFormValid() || pickupScheduleForm.loading"
-                              >
-                                <i class="fas fa-calendar-check me-1"></i>
-                                <span v-if="pickupScheduleForm.loading">
-                                  <i class="fas fa-spinner fa-spin me-1"></i>
-                                  Scheduling...
-                                </span>
-                                <span v-else>Schedule Pickup</span>
-                              </button>
-                            </div>
-                          </div> -->
                         </div>
                       </div>
                     </div>
@@ -2135,6 +1884,9 @@ import AdminSidebar from './AdminSidebar.vue';
 import AuthorizedPickupDocumentsModal from './AuthorizedPickupDocumentsModal.vue';
 import unifiedAuthService from '@/services/unifiedAuthService';
 import adminDocumentService from '@/services/adminDocumentService';
+import supportingDocumentService from '@/services/supportingDocumentService';
+import beneficiaryVerificationService from '@/services/beneficiaryVerificationService';
+import authorizationDocumentService from '@/services/authorizationDocumentService';
 import api from '@/services/api';
 import { Modal } from 'bootstrap';
 import notificationService from '@/services/notificationService';
@@ -4512,25 +4264,37 @@ export default {
     // Authorization verification methods
     async verifyAuthorization(requestId, isApproved) {
       try {
-        // This would call a new API endpoint for authorization verification
-        // const response = await adminDocumentService.verifyAuthorization(requestId, {
-        //   isApproved,
-        //   notes: isApproved ? 'Authorization verified and approved' : 'Authorization rejected'
-        // });
+        // Validate that we have a pickup person ID
+        if (!this.currentRequest?.authorized_pickup?.id) {
+          this.$toast?.error('Pickup person ID not found');
+          return;
+        }
 
-        // For now, show a placeholder message
-        this.showToast(
-          'Authorization ' + (isApproved ? 'Approved' : 'Rejected'),
-          `Pickup authorization has been ${isApproved ? 'approved' : 'rejected'}`,
-          isApproved ? 'success' : 'warning'
+        const pickupId = this.currentRequest.authorized_pickup.id;
+        const status = isApproved ? 'verified' : 'rejected';
+
+        // Call the actual API endpoint to verify pickup person
+        const response = await this.$http.patch(
+          `/api/authorized-pickup/${pickupId}/verify`,
+          { verification_status: status }
         );
 
-        // Refresh the request details
-        await this.refreshRequestDetails();
+        if (response.data.success) {
+          this.$toast?.success(
+            isApproved 
+              ? 'Pickup authorization approved successfully. Client has been notified.' 
+              : 'Pickup authorization rejected. Client has been notified.'
+          );
+          
+          // Refresh the request details to show updated status
+          await this.loadRequestDetails(requestId);
+        } else {
+          this.$toast?.error(response.data.message || 'Failed to update pickup authorization');
+        }
 
       } catch (error) {
         console.error('Failed to verify authorization:', error);
-        this.errorMessage = 'Failed to verify authorization. Please try again.';
+        this.$toast?.error(error.response?.data?.message || 'Failed to verify authorization. Please try again.');
       }
     },
 
@@ -4910,8 +4674,11 @@ export default {
         this.loadingDocuments.add(docId);
         if (isForModal) this.imageLoadingInModal = true;
 
+        // Add timestamp to force cache busting (especially important after reupload)
+        const timestamp = new Date().getTime();
+        
         // Use authenticated API call to get the document
-        const response = await api.get(`/documents/view/${docId}`, {
+        const response = await api.get(`/documents/view/${docId}?t=${timestamp}`, {
           responseType: 'blob',
           timeout: 15000, // Increased timeout for large images
           onDownloadProgress: (progressEvent) => {
@@ -5149,6 +4916,149 @@ export default {
       errorDiv.className = 'text-center text-muted p-3';
       errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><br>Failed to load image';
       event.target.parentNode.appendChild(errorDiv);
+    },
+
+    // Supporting Document Verification Methods
+    async approveSupportingDocument(documentId) {
+      if (!confirm('Are you sure you want to approve this supporting document?')) return;
+      
+      try {
+        const result = await supportingDocumentService.updateDocumentStatus(documentId, 'approved');
+        
+        if (result.success) {
+          this.$toast?.success('Supporting document approved successfully');
+          
+          // Clear cached blob URL for this document to force reload
+          if (this.documentUrls[documentId]) {
+            URL.revokeObjectURL(this.documentUrls[documentId]);
+            delete this.documentUrls[documentId];
+          }
+          this.loadingDocuments.delete(documentId);
+          this.failedDocuments.delete(documentId);
+          
+          // Refresh the current request details
+          await this.viewRequestDetails(this.currentRequest.id);
+          
+          // Close the dialog
+          this.showRequestDetails = false;
+        } else {
+          this.$toast?.error(result.message || 'Failed to approve document');
+        }
+      } catch (error) {
+        console.error('Error approving supporting document:', error);
+        this.$toast?.error('An error occurred while approving the document');
+      }
+    },
+
+    async rejectSupportingDocument(documentId) {
+      if (!confirm('Are you sure you want to reject this supporting document? The client will be notified to reupload.')) return;
+      
+      try {
+        const result = await supportingDocumentService.updateDocumentStatus(documentId, 'rejected');
+        
+        if (result.success) {
+          this.$toast?.warning('Supporting document rejected. Client will be notified.');
+          
+          // Clear cached blob URL for this document to force reload
+          if (this.documentUrls[documentId]) {
+            URL.revokeObjectURL(this.documentUrls[documentId]);
+            delete this.documentUrls[documentId];
+          }
+          this.loadingDocuments.delete(documentId);
+          this.failedDocuments.delete(documentId);
+          
+          // Refresh the current request details
+          await this.viewRequestDetails(this.currentRequest.id);
+          
+          // Close the dialog
+          this.showRequestDetails = false;
+        } else {
+          this.$toast?.error(result.message || 'Failed to reject document');
+        }
+      } catch (error) {
+        console.error('Error rejecting supporting document:', error);
+        this.$toast?.error('An error occurred while rejecting the document');
+      }
+    },
+
+    // Beneficiary Verification Methods
+    async approveBeneficiaryVerification(beneficiaryId) {
+      if (!confirm('Are you sure you want to approve this beneficiary verification?')) return;
+      
+      try {
+        const result = await beneficiaryVerificationService.updateVerificationStatus(beneficiaryId, 'approved');
+        
+        if (result.success) {
+          this.$toast?.success('Beneficiary verification approved successfully');
+          await this.loadRequestDetails(this.currentRequest.id);
+          
+          // Close the dialog
+          this.showRequestDetails = false;
+        } else {
+          this.$toast?.error(result.message || 'Failed to approve verification');
+        }
+      } catch (error) {
+        console.error('Error approving beneficiary verification:', error);
+        this.$toast?.error('An error occurred');
+      }
+    },
+
+    async rejectBeneficiaryVerification(beneficiaryId) {
+      if (!confirm('Are you sure you want to reject this beneficiary verification? The client will be notified to reupload.')) return;
+      
+      try {
+        const result = await beneficiaryVerificationService.updateVerificationStatus(beneficiaryId, 'rejected');
+        
+        if (result.success) {
+          this.$toast?.warning('Beneficiary verification rejected. Client will be notified.');
+          await this.loadRequestDetails(this.currentRequest.id);
+          
+          // Close the dialog
+          this.showRequestDetails = false;
+        } else {
+          this.$toast?.error(result.message || 'Failed to reject verification');
+        }
+      } catch (error) {
+        console.error('Error rejecting beneficiary verification:', error);
+        this.$toast?.error('An error occurred');
+      }
+    },
+
+    // Authorization Document Methods
+    async approveAuthorizationDocument(documentId) {
+      if (!confirm('Are you sure you want to approve this authorization document?')) return;
+      
+      try {
+        const result = await authorizationDocumentService.updateDocumentStatus(documentId, 'approved');
+        
+        if (result.success) {
+          this.$toast?.success('Authorization document approved successfully');
+          await this.loadRequestDetails(this.currentRequest.id);
+        } else {
+          this.$toast?.error(result.message || 'Failed to approve document');
+        }
+      } catch (error) {
+        console.error('Error approving authorization document:', error);
+        this.$toast?.error('An error occurred');
+      }
+    },
+
+    async rejectAuthorizationDocument(documentId) {
+      if (!confirm('Are you sure you want to reject this authorization document? The client will be notified to reupload.')) return;
+      
+      try {
+        const result = await authorizationDocumentService.updateDocumentStatus(documentId, 'rejected');
+        
+        if (result.success) {
+          this.$toast?.warning('Authorization document rejected. Client will be notified.');
+          await this.loadRequestDetails(this.currentRequest.id);
+        } else {
+          this.$toast?.error(result.message || 'Failed to reject document');
+        }
+      } catch (error) {
+        console.error('Error rejecting authorization document:', error);
+        this.$toast?.error('An error occurred');
+      }
     },
 
     // Beneficiary verification status methods
