@@ -1,7 +1,11 @@
+import api from '@/utils/api';
+
 export default {
   name: 'HelpSupport',
   data() {
     return {
+      barangayClearanceFee: '150.00',
+      cedulaFee: '30.00',
       documentFAQs: [
         {
           id: 'doc-1',
@@ -126,7 +130,34 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.loadDocumentFees();
+  },
   methods: {
+    async loadDocumentFees() {
+      try {
+        // Load all document fees
+        const response = await api.get('/document-fees');
+        if (response.data.success && response.data.data) {
+          const fees = response.data.data;
+          
+          // Find Barangay Clearance (document_type_id = 2)
+          const barangayClearance = fees.find(f => f.document_type_id === 2);
+          if (barangayClearance && barangayClearance.fee_amount) {
+            this.barangayClearanceFee = parseFloat(barangayClearance.fee_amount).toFixed(2);
+          }
+          
+          // Find Cedula (document_type_id = 1)
+          const cedula = fees.find(f => f.document_type_id === 1);
+          if (cedula && cedula.fee_amount) {
+            this.cedulaFee = parseFloat(cedula.fee_amount).toFixed(2);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading document fees:', error);
+        // Keep default values on error
+      }
+    },
     toggleFAQ(faqId) {
       // Find the FAQ in all categories
       const allFAQs = [...this.documentFAQs, ...this.accountFAQs, ...this.paymentFAQs];

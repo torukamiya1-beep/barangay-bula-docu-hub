@@ -166,6 +166,21 @@
           </a>
         </li>
 
+        <!-- Fee Management -->
+        <li class="nav-item">
+          <a href="#"
+             class="nav-link"
+             :class="{ active: currentActiveMenu === 'fees' }"
+             @click="handleMenuClick('fees', $event)"
+             :title="collapsed && !isMobile ? 'Fee Management' : ''">
+            <div class="nav-icon-container">
+              <i class="fas fa-money-bill-wave nav-icon"></i>
+            </div>
+            <span v-if="!collapsed || isMobile" class="nav-text">Fee Management</span>
+            <div v-if="collapsed && !isMobile && currentActiveMenu === 'fees'" class="active-indicator"></div>
+          </a>
+        </li>
+
         <!-- System Settings -->
         <li class="nav-item">
           <a href="#"
@@ -301,6 +316,7 @@ export default {
         '/admin/requests': 'requests',
         '/admin/history': 'history',
         '/admin/reports': 'reports',
+        '/admin/fee-management': 'fees',
         '/admin/settings': 'settings',
         '/admin/activity-logs': 'activity',
         '/admin/audit-logs': 'audit',
@@ -356,6 +372,7 @@ export default {
         'requests': '/admin/requests',
         'history': '/admin/history',
         'reports': '/admin/reports',
+        'fees': '/admin/fee-management',
         'settings': '/admin/settings',
         'activity': '/admin/activity-logs',
         'audit': '/admin/audit-logs',

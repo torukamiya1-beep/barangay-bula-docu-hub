@@ -868,8 +868,9 @@ export default {
       purposeCategories: [],
       paymentMethods: [], // Grouped payment methods for display
       originalPaymentMethods: [], // Original payment methods from backend
-      baseFee: 150.00,
-      totalFee: 150.00,
+      baseFee: 0,
+      totalFee: 0,
+      loadingFee: true,
       familyRelationshipError: null,
       formData: {
         document_type_id: 2, // Barangay Clearance
@@ -988,17 +989,14 @@ export default {
         if (profileResponse.success) {
           this.clientData = profileResponse.data;
           console.log('Fresh profile data loaded:', this.clientData);
-        } else {
-          // Fallback to cached data
-          this.clientData = this.cachedClientData;
-          console.log('Using cached profile data:', this.clientData);
         }
 
         const [purposeResponse, paymentResponse] = await Promise.all([
-          documentRequestService.getPurposeCategories(),
-          documentRequestService.getPaymentMethods(),
+          this.loadPurposeCategories(),
+          this.loadPaymentMethods(),
           this.loadCivilStatuses(),
-          this.loadAddressData()
+          this.loadAddressData(),
+          this.loadCurrentFee()
         ]);
 
         this.purposeCategories = purposeResponse.data || [];
@@ -1013,11 +1011,30 @@ export default {
       }
     },
 
-    getFullName() {
-      // Try fresh data first, then fallback to cached data structure
-      const profile = this.clientData || this.clientData?.profile;
-      if (!profile) return 'N/A';
-      return `${profile.first_name || ''} ${profile.middle_name || ''} ${profile.last_name || ''}`.trim();
+    async loadCurrentFee() {
+      try {
+        this.loadingFee = true;
+        const response = await api.get('/document-fees/2/current'); // Document type ID 2 = Barangay Clearance
+        
+        if (response.data.success && response.data.data) {
+          this.baseFee = parseFloat(response.data.data.fee_amount);
+          this.totalFee = this.baseFee;
+          console.log('Loaded current fee:', this.baseFee);
+        } else {
+          // Fallback to default if API fails
+          console.warn('Failed to load current fee, using default');
+          this.baseFee = 150.00;
+          this.totalFee = 150.00;
+        }
+      } catch (error) {
+        console.error('Error loading current fee:', error);
+        // Fallback to default
+        this.baseFee = 150.00;
+        this.totalFee = 150.00;
+        this.showToast('Warning', 'Using default fee amount', 'warning');
+      } finally {
+        this.loadingFee = false;
+      }
     },
 
     getFullAddress() {
@@ -1254,9 +1271,9 @@ export default {
           pending_cases_details: this.formData.pending_cases_details || null,
           voter_registration_status: this.formData.voter_registration_status !== null ? Boolean(this.formData.voter_registration_status) : null,
 
-          total_fee: this.totalFee || 150.00,
+          total_fee: this.totalFee || this.baseFee,
           // CRITICAL: Send exact total_document_fee for PayMongo accuracy
-          total_document_fee: 150.00
+          total_document_fee: this.baseFee
         });
 
         console.log('Submitting request data:', requestData);

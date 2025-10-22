@@ -266,12 +266,12 @@
           <tbody>
             <tr>
               <td>Barangay Clearance</td>
-              <td>₱150.00</td>
+              <td>₱{{ barangayClearanceFee }}</td>
               <td>Same day</td>
             </tr>
             <tr>
               <td>Cedula (Community Tax Certificate)</td>
-              <td>₱30.00</td>
+              <td>₱{{ cedulaFee }}</td>
               <td>Same day</td>
             </tr>
           </tbody>

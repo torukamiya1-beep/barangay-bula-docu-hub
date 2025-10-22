@@ -203,6 +203,15 @@ const routes = [
     }
   },
   {
+    path: '/admin/fee-management',
+    name: 'FeeManagement',
+    component: () => import('@/components/admin/FeeManagement.vue'),
+    meta: {
+      title: 'Fee Management',
+      requiresAdminAuth: true
+    }
+  },
+  {
     path: '/admin/settings',
     name: 'AdminSettings',
     component: () => import('@/components/admin/AdminSettings.vue'),
