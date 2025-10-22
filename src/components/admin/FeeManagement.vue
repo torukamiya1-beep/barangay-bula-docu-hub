@@ -2,6 +2,10 @@
   <div class="fee-management-container">
     <!-- Header -->
     <div class="page-header">
+      <button class="btn-back" @click="goBack" title="Go Back">
+        <i class="fas fa-arrow-left"></i>
+        Back
+      </button>
       <div class="header-content">
         <h1 class="page-title">
           <i class="fas fa-money-bill-wave"></i>
@@ -398,6 +402,15 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       });
+    },
+
+    goBack() {
+      // Go back to previous page or admin dashboard
+      if (window.history.length > 1) {
+        this.$router.go(-1);
+      } else {
+        this.$router.push('/admin/dashboard');
+      }
     }
   }
 };
