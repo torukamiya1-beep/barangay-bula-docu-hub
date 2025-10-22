@@ -200,7 +200,7 @@
 
           <div v-else-if="feeHistory.length > 0" class="history-timeline">
             <div 
-              v-for="(item, index) in feeHistory" 
+              v-for="item in feeHistory" 
               :key="item.id"
               class="history-item"
               :class="{ 'active': item.is_active }">

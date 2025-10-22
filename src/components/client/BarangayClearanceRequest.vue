@@ -850,6 +850,7 @@
 </template>
 
 <script>
+import api from '@/utils/api';
 import documentRequestService from '@/services/documentRequestService';
 import clientAuthService from '@/services/clientAuthService';
 import paymentService from '@/services/paymentService';
