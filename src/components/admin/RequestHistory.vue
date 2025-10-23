@@ -2198,11 +2198,10 @@ export default {
     // For active request management, see AdminRequests.vue
     async loadRequests() {
       try {
-        // Load both completed and cancelled requests for historical view
+        // Load ALL requests without pagination, then filter and paginate client-side
+        // This ensures we get all historical requests for proper pagination
         const params = {
-          page: this.pagination.currentPage,
-          limit: this.pagination.itemsPerPage,
-          // Remove fixed status filter to get all requests, then filter client-side
+          limit: 1000, // Get all requests (adjust if you have more than 1000)
           priority: this.filters.priority,
           search: this.filters.search,
           date_from: this.filters.date_from,
@@ -2233,21 +2232,28 @@ export default {
             return statusName === 'completed' || statusName === 'cancelled';
           });
 
-          this.requests = historicalRequests;
-          console.log('✅ RequestHistory: Loaded historical requests:', this.requests.length, 'requests');
+          console.log('✅ RequestHistory: Total historical requests:', historicalRequests.length);
           console.log('📊 RequestHistory: Breakdown - Total:', allRequests.length, 'Historical:', historicalRequests.length);
 
-          if (this.requests.length > 0) {
-            console.log('📋 RequestHistory: First request:', this.requests[0]);
-          }
-
-          // Calculate correct pagination based on filtered historical requests
-          const itemsPerPage = response.data.pagination?.per_page || 10;
+          // Calculate pagination based on ALL filtered historical requests
+          const itemsPerPage = this.pagination.itemsPerPage;
           const totalItems = historicalRequests.length;
           const totalPages = Math.ceil(totalItems / itemsPerPage);
           
+          // Paginate client-side: slice the filtered results
+          const startIndex = (this.pagination.currentPage - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          this.requests = historicalRequests.slice(startIndex, endIndex);
+
+          console.log(`📄 RequestHistory: Showing page ${this.pagination.currentPage} (${this.requests.length} items)`);
+
+          if (this.requests.length > 0) {
+            console.log('📋 RequestHistory: First request on page:', this.requests[0]);
+          }
+
+          // Update pagination
           this.pagination = {
-            currentPage: response.data.pagination?.current_page || 1,
+            currentPage: this.pagination.currentPage,
             totalPages: totalPages,
             totalItems: totalItems,
             itemsPerPage: itemsPerPage
