@@ -30,44 +30,6 @@
 
       <main class="main-content" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
         <div class="container-fluid p-4">
-          <!-- Page Header -->
-          <div class="page-header mb-4">
-            <h1 class="page-title">
-              <i class="fas fa-money-bill-wave"></i>
-              Document Fee Management
-            </h1>
-            <p class="page-subtitle">Manage dynamic pricing for document types</p>
-          </div>
-
-          <!-- Statistics Cards -->
-          <div class="stats-grid mb-4" v-if="statistics">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-file-alt"></i>
-              </div>
-              <div class="stat-content">
-                <div class="stat-value">{{ statistics.total_document_types }}</div>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-history"></i>
-              </div>
-              <div class="stat-content">
-                <div class="stat-value">{{ statistics.total_fee_changes }}</div>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-peso-sign"></i>
-              </div>
-              <div class="stat-content">
-                <div class="stat-value">₱{{ parseFloat(statistics.average_fee || 0).toFixed(2) }}</div>
-              </div>
-            </div>
-          </div>
 
           <!-- Document Fees Table -->
           <div class="fees-table-container">
