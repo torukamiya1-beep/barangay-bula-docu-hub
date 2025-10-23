@@ -1038,6 +1038,13 @@ export default {
       }
     },
 
+    getFullName() {
+      // Try fresh data first, then fallback to cached data structure
+      const profile = this.clientData || this.clientData?.profile;
+      if (!profile) return 'N/A';
+      return `${profile.first_name || ''} ${profile.middle_name || ''} ${profile.last_name || ''}`.trim();
+    },
+
     getFullAddress() {
       // Try fresh data first, then fallback to cached data structure
       const profile = this.clientData || this.clientData?.profile;
