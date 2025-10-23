@@ -1,13 +1,8 @@
 /* Fee Management Styles */
 
-.admin-fee-management {
-  min-height: 100vh;
-  background: #f8fafc;
-}
-
 /* Page Header */
 .page-header {
-  margin-bottom: 0;
+  margin-bottom: 1.5rem;
 }
 
 .page-title {

@@ -514,4 +514,5 @@ export default {
 };
 </script>
 
+<style src="./css/adminDashboard.css"></style>
 <style scoped src="./css/feeManagement.css"></style>
