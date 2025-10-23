@@ -47,7 +47,6 @@
               </div>
               <div class="stat-content">
                 <div class="stat-value">{{ statistics.total_document_types }}</div>
-                <div class="stat-label">Document Types</div>
               </div>
             </div>
             
@@ -57,7 +56,6 @@
               </div>
               <div class="stat-content">
                 <div class="stat-value">{{ statistics.total_fee_changes }}</div>
-                <div class="stat-label">Total Fee Changes</div>
               </div>
             </div>
             
@@ -67,7 +65,6 @@
               </div>
               <div class="stat-content">
                 <div class="stat-value">₱{{ parseFloat(statistics.average_fee || 0).toFixed(2) }}</div>
-                <div class="stat-label">Average Fee</div>
               </div>
             </div>
           </div>

@@ -2241,11 +2241,16 @@ export default {
             console.log('📋 RequestHistory: First request:', this.requests[0]);
           }
 
+          // Calculate correct pagination based on filtered historical requests
+          const itemsPerPage = response.data.pagination?.per_page || 10;
+          const totalItems = historicalRequests.length;
+          const totalPages = Math.ceil(totalItems / itemsPerPage);
+          
           this.pagination = {
             currentPage: response.data.pagination?.current_page || 1,
-            totalPages: response.data.pagination?.total_pages || 1,
-            totalItems: historicalRequests.length, // Update to reflect filtered count
-            itemsPerPage: response.data.pagination?.per_page || 10
+            totalPages: totalPages,
+            totalItems: totalItems,
+            itemsPerPage: itemsPerPage
           };
         } else {
           console.error('❌ RequestHistory: API returned unsuccessful response:', response);
