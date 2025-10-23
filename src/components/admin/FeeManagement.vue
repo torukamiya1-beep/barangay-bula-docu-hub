@@ -1,55 +1,79 @@
 <template>
-  <div class="fee-management-container">
-    <!-- Header -->
-    <div class="page-header">
-      <button class="btn-back" @click="goBack" title="Go Back">
-        <i class="fas fa-arrow-left"></i>
-        Back
-      </button>
-      <div class="header-content">
-        <h1 class="page-title">
-          <i class="fas fa-money-bill-wave"></i>
-          Document Fee Management
-        </h1>
-        <p class="page-subtitle">Manage dynamic pricing for document types</p>
-      </div>
-    </div>
+  <div class="admin-fee-management">
+    <AdminHeader
+      :userName="adminData?.first_name || 'Admin'"
+      :showUserDropdown="showUserDropdown"
+      :sidebarCollapsed="sidebarCollapsed"
+      :activeMenu="activeMenu"
+      @sidebar-toggle="handleSidebarToggle"
+      @user-dropdown-toggle="handleUserDropdownToggle"
+      @menu-action="handleMenuAction"
+      @logout="handleLogout"
+      @open-user-modal="handleOpenUserModal"
+    />
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid" v-if="statistics">
-      <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ statistics.total_document_types }}</div>
-          <div class="stat-label">Document Types</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-history"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ statistics.total_fee_changes }}</div>
-          <div class="stat-label">Total Fee Changes</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-peso-sign"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">₱{{ parseFloat(statistics.average_fee || 0).toFixed(2) }}</div>
-          <div class="stat-label">Average Fee</div>
-        </div>
-      </div>
-    </div>
+    <!-- Mobile Overlay -->
+    <div
+      class="mobile-overlay"
+      :class="{ active: !sidebarCollapsed && isMobile }"
+      @click="closeMobileSidebar"
+    ></div>
 
-    <!-- Document Fees Table -->
-    <div class="fees-table-container">
+    <div class="dashboard-container">
+      <AdminSidebar
+        :collapsed="sidebarCollapsed"
+        :activeMenu="activeMenu"
+        @menu-change="handleMenuChange"
+        @logout="handleLogout"
+        @toggle-sidebar="handleSidebarToggle"
+      />
+
+      <main class="main-content" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+        <div class="container-fluid p-4">
+          <!-- Page Header -->
+          <div class="page-header mb-4">
+            <h1 class="page-title">
+              <i class="fas fa-money-bill-wave"></i>
+              Document Fee Management
+            </h1>
+            <p class="page-subtitle">Manage dynamic pricing for document types</p>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="stats-grid mb-4" v-if="statistics">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ statistics.total_document_types }}</div>
+                <div class="stat-label">Document Types</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ statistics.total_fee_changes }}</div>
+                <div class="stat-label">Total Fee Changes</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-peso-sign"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">₱{{ parseFloat(statistics.average_fee || 0).toFixed(2) }}</div>
+                <div class="stat-label">Average Fee</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Fees Table -->
+          <div class="fees-table-container">
       <div class="table-header">
         <h2 class="table-title">Current Document Fees</h2>
         <div class="table-actions">
@@ -119,11 +143,14 @@
         </table>
       </div>
 
-      <!-- Empty State -->
-      <div v-else class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No document fees found</p>
-      </div>
+            <!-- Empty State -->
+            <div v-else class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <p>No document fees found</p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Edit Fee Modal -->
@@ -245,12 +272,28 @@
 
 <script>
 import api from '@/utils/api';
+import AdminHeader from './AdminHeader.vue';
+import AdminSidebar from './AdminSidebar.vue';
+import adminAuthService from '@/services/adminAuthService';
 
 export default {
   name: 'FeeManagement',
   
+  components: {
+    AdminHeader,
+    AdminSidebar
+  },
+  
   data() {
     return {
+      // Admin layout data
+      adminData: null,
+      sidebarCollapsed: false,
+      showUserDropdown: false,
+      activeMenu: 'fee-management',
+      isMobile: window.innerWidth <= 768,
+      
+      // Fee management data
       documentFees: [],
       statistics: null,
       loading: false,
@@ -279,12 +322,76 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
+    await this.loadAdminData();
     this.loadDocumentFees();
     this.loadStatistics();
+    
+    // Handle window resize for mobile
+    window.addEventListener('resize', this.handleResize);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize);
   },
 
   methods: {
+    // Admin layout methods
+    async loadAdminData() {
+      try {
+        const response = await adminAuthService.getProfile();
+        if (response.success) {
+          this.adminData = response.data;
+        }
+      } catch (error) {
+        console.error('Error loading admin data:', error);
+      }
+    },
+
+    handleSidebarToggle() {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+    },
+
+    handleUserDropdownToggle() {
+      this.showUserDropdown = !this.showUserDropdown;
+    },
+
+    handleMenuChange(menu) {
+      this.activeMenu = menu;
+      this.$router.push(`/admin/${menu}`);
+    },
+
+    handleMenuAction(action) {
+      if (action === 'profile') {
+        this.$router.push('/admin/profile');
+      } else if (action === 'settings') {
+        this.$router.push('/admin/settings');
+      }
+    },
+
+    handleLogout() {
+      adminAuthService.logout();
+      this.$router.push('/admin/login');
+    },
+
+    handleOpenUserModal() {
+      // Handle user modal if needed
+    },
+
+    closeMobileSidebar() {
+      if (this.isMobile) {
+        this.sidebarCollapsed = true;
+      }
+    },
+
+    handleResize() {
+      this.isMobile = window.innerWidth <= 768;
+      if (!this.isMobile) {
+        this.sidebarCollapsed = false;
+      }
+    },
+
+    // Fee management methods
     async loadDocumentFees() {
       this.loading = true;
       this.error = null;
@@ -402,15 +509,6 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       });
-    },
-
-    goBack() {
-      // Go back to previous page or admin dashboard
-      if (window.history.length > 1) {
-        this.$router.go(-1);
-      } else {
-        this.$router.push('/admin/dashboard');
-      }
     }
   }
 };
