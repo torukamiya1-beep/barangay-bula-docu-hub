@@ -1012,6 +1012,24 @@ export default {
       }
     },
 
+    async loadPurposeCategories() {
+      try {
+        return await api.get('/purpose-categories');
+      } catch (error) {
+        console.error('Error loading purpose categories:', error);
+        return { data: [] };
+      }
+    },
+
+    async loadPaymentMethods() {
+      try {
+        return await api.get('/payment-methods');
+      } catch (error) {
+        console.error('Error loading payment methods:', error);
+        return { data: [] };
+      }
+    },
+
     async loadCurrentFee() {
       try {
         this.loadingFee = true;
