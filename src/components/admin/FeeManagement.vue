@@ -514,5 +514,58 @@ export default {
 };
 </script>
 
-<style src="./css/adminDashboard.css"></style>
+<style scoped>
+/* Import only layout styles needed from adminDashboard.css */
+.dashboard-container {
+  display: flex;
+  min-height: calc(100vh - 70px);
+}
+
+.main-content {
+  flex: 1;
+  padding: 0;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin-left: 280px;
+  margin-top: 70px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: calc(100vh - 70px);
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 72px;
+}
+
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+</style>
 <style scoped src="./css/feeManagement.css"></style>
