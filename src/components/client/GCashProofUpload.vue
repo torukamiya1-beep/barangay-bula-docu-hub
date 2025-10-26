@@ -249,17 +249,19 @@ export default {
         }
 
         // Check if upload was successful
-        if (response && response.data && response.data.success) {
+        if (response && response.success) {
           this.uploadSuccess = true;
           this.selectedFile = null;
           this.imagePreview = null;
           this.referenceNumber = '';
 
-          // Emit success event to parent - response.data contains the actual data
-          this.$emit('upload-success', response.data);
+          // Emit success event to parent - response contains the actual data
+          this.$emit('upload-success', response);
 
           // Show success toast
-          this.$toast.success(response.data.message || 'Payment proof uploaded successfully!');
+          if (this.$toast && typeof this.$toast.success === 'function') {
+            this.$toast.success(response.message || 'Payment proof uploaded successfully!');
+          }
 
           // Wait a moment then close/refresh
           setTimeout(() => {
