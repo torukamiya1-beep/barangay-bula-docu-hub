@@ -5822,7 +5822,7 @@ export default {
         const response = await gcashPaymentService.verifyPaymentProof(requestId);
 
         // Check if response exists and has success property
-        if (response && response.data && response.data.success) {
+        if (response && response.success) {
           this.$toast.success('GCash payment verified and document status updated to Payment Confirmed! Client has been notified.');
 
           // After successful GCash verification, also update document status to payment_confirmed
