@@ -5890,14 +5890,16 @@ export default {
 
         let errorMessage = 'Failed to approve payment';
 
-        if (error.response?.status === 400) {
-          errorMessage = error.response.data?.error || 'Payment verification failed. Please check the payment proof.';
-        } else if (error.response?.status === 404) {
-          errorMessage = 'Payment proof not found. Please contact support.';
-        } else if (error.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        } else if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
+        if (error.response) {
+          if (error.response.status === 400) {
+            errorMessage = error.response.data?.error || error.response.data?.message || 'Payment verification failed. Please check the payment proof.';
+          } else if (error.response.status === 404) {
+            errorMessage = 'Payment proof not found. Please contact support.';
+          } else if (error.response.data?.error) {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data?.message) {
+            errorMessage = error.response.data.message;
+          }
         } else if (error.message) {
           errorMessage = error.message;
         }
