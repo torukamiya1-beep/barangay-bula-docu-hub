@@ -166,20 +166,20 @@ class PaymentService {
     });
 
     // Add grouped online payment option if there are online methods
-    if (onlineMethods.length > 0) {
-      groupedMethods.push({
-        id: 'ONLINE_PAYMENT_GROUP',
-        method_name: 'Online Payment',
-        method_code: 'ONLINE_PAYMENT_GROUP',
-        description: 'Pay securely online using credit/debit card, GCash, GrabPay, Maya, or bank transfer',
-        is_online: true,
-        is_active: true,
-        processing_fee_percentage: onlineMethods[0]?.processing_fee_percentage || 0,
-        processing_fee_fixed: onlineMethods[0]?.processing_fee_fixed || 0,
-        group_type: 'group',
-        grouped_methods: onlineMethods
-      });
-    }
+    // if (onlineMethods.length > 0) {
+    //   groupedMethods.push({
+    //     id: 'ONLINE_PAYMENT_GROUP',
+    //     method_name: 'Online Payment',
+    //     method_code: 'ONLINE_PAYMENT_GROUP',
+    //     description: 'Pay securely online using credit/debit card, GCash, GrabPay, Maya, or bank transfer',
+    //     is_online: true,
+    //     is_active: true,
+    //     processing_fee_percentage: onlineMethods[0]?.processing_fee_percentage || 0,
+    //     processing_fee_fixed: onlineMethods[0]?.processing_fee_fixed || 0,
+    //     group_type: 'group',
+    //     grouped_methods: onlineMethods
+    //   });
+    // }
 
     return groupedMethods;
   }
