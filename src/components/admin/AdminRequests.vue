@@ -1561,10 +1561,10 @@
                               Payment verified and approved
                             </div>
                             
-                            <div class="mb-3">
+                            <!--<div class="mb-3">
                               <label class="form-label fw-bold">Verified By</label>
                               <p>{{ getAdminNameById(currentRequest.gcash_verified_by) }}</p>
-                            </div>
+                            </div>-->
                             
                             <div class="mb-3">
                               <label class="form-label fw-bold">Verified At</label>
