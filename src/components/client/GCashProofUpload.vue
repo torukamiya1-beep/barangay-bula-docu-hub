@@ -293,7 +293,10 @@ export default {
           this.uploadError = 'An unexpected error occurred. Please try again.';
         }
 
-        this.$toast.error(this.uploadError);
+        // Show error toast if available
+        if (this.$toast && typeof this.$toast.error === 'function') {
+          this.$toast.error(this.uploadError);
+        }
       } finally {
         this.uploading = false;
       }
