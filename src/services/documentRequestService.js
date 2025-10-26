@@ -69,8 +69,11 @@ class DocumentRequestService {
           params.append(key, filters[key]);
         }
       });
-      
+
+      console.log('🔄 Frontend: Getting my requests with filters:', filters);
       const response = await api.get(`/client/document-requests?${params.toString()}`);
+      console.log('📋 Frontend: My requests response:', response.data);
+
       return response.data;
     } catch (error) {
       console.error('Error fetching requests:', error);

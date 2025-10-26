@@ -313,6 +313,11 @@ export default {
             targetRoute = await this.handlePaymentNavigation(notificationData);
             break;
 
+          case 'gcash_proof_uploaded':
+          case 'gcash_proof_reuploaded':
+            targetRoute = await this.handleGCashPaymentNavigation(notificationData);
+            break;
+
           case 'system_alert':
           case 'urgent_request':
             targetRoute = await this.handleSystemAlertNavigation(notificationData);
@@ -688,10 +693,25 @@ export default {
         'user_registration': 'fas fa-user-plus text-info',
         'new_user': 'fas fa-user-check text-success',
         'new_client_registration': 'fas fa-user-plus text-info',
+        'gcash_proof_uploaded': 'fas fa-mobile-alt text-warning',
+        'gcash_proof_reuploaded': 'fas fa-mobile-alt text-info',
+        'gcash_payment_approved': 'fas fa-check-circle text-success',
+        'gcash_payment_rejected': 'fas fa-times-circle text-danger',
         'test': 'fas fa-vial text-secondary',
         'connection': 'fas fa-plug text-success'
       };
       return icons[type] || 'fas fa-bell text-primary';
+    },
+
+    async handleGCashPaymentNavigation(notificationData) {
+      // Navigate to AdminRequests and open the specific request
+      if (notificationData && notificationData.request_id) {
+        return {
+          name: 'AdminRequests',
+          query: { requestId: notificationData.request_id }
+        };
+      }
+      return { name: 'AdminRequests' };
     },
 
     formatTime(timestamp) {

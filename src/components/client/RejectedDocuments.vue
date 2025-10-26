@@ -255,6 +255,104 @@
               </div>
             </div>
 
+            <!-- GCash Payment Proofs Section -->
+            <div v-if="rejectedGCashProofs.length > 0" class="mb-5">
+              <h4 class="section-title mb-3">
+                <i class="fas fa-mobile-alt me-2 text-danger"></i>
+                Rejected GCash Payment Proofs
+              </h4>
+              <div class="document-list">
+                <div v-for="proof in rejectedGCashProofs" :key="'gcash-' + proof.id" class="document-list-item">
+                  <div class="document-card">
+                    <!-- Document Type Header -->
+                    <div class="card-header bg-danger text-white d-flex align-items-center">
+                      <i class="fas fa-mobile-alt me-2"></i>
+                      <h6 class="mb-0 flex-grow-1">GCash Payment Proof - Request #{{ proof.request_number || 'N/A' }}</h6>
+                    </div>
+
+                    <!-- Document Content -->
+                    <div class="card-body">
+                      <div class="document-details mb-3">
+                        <p class="card-text mb-2">
+                          <strong>Document Type:</strong> {{ proof.document_type || 'N/A' }}<br>
+                          <strong>Amount:</strong> ₱{{ formatCurrency(proof.total_fee || proof.total_document_fee || proof.total_amount) }}<br>
+                          <strong>Rejected:</strong> {{ formatDate(proof.gcash_verified_at) }}<br>
+                          <strong>Request:</strong> {{ proof.request_number || 'N/A' }}
+                        </p>
+                      </div>
+
+                      <!-- Reupload Section -->
+                      <div class="reupload-section">
+                        <div v-if="!uploadingDocuments['gcash-' + proof.id]" class="d-flex gap-2 flex-wrap">
+                          <label :for="`file-input-gcash-${proof.id}`" class="btn btn-warning btn-sm">
+                            <i class="fas fa-upload me-1"></i>
+                            Reupload Payment Proof
+                          </label>
+                          <input
+                            :id="`file-input-gcash-${proof.id}`"
+                            type="file"
+                            class="d-none"
+                            accept=".jpg,.jpeg,.png,.webp"
+                            @change="handleFileSelect($event, proof, 'gcash')"
+                          />
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div v-else class="upload-progress mt-2">
+                          <div class="d-flex align-items-center mb-2">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span class="small">Uploading payment proof...</span>
+                          </div>
+                          <div class="progress" style="height: 5px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%"></div>
+                          </div>
+                        </div>
+
+                        <!-- Preview Selected File -->
+                        <div v-if="selectedFiles['gcash-' + proof.id]" class="mt-3">
+                          <div class="alert alert-info py-2 mb-2">
+                            <small>
+                              <i class="fas fa-file-image me-1"></i>
+                              <strong>Selected:</strong> {{ selectedFiles['gcash-' + proof.id].name }}
+                            </small>
+                          </div>
+                          
+                          <!-- Optional Reference Number -->
+                          <div class="mb-2">
+                            <input
+                              v-model="gcashReferenceNumbers[proof.id]"
+                              type="text"
+                              class="form-control form-control-sm"
+                              placeholder="GCash Reference Number (Optional)"
+                            />
+                          </div>
+                          
+                          <div class="d-flex gap-2 flex-wrap">
+                            <button
+                              class="btn btn-success btn-sm"
+                              @click="uploadGCashProof(proof)"
+                              :disabled="uploadingDocuments['gcash-' + proof.id]"
+                            >
+                              <i class="fas fa-check me-1"></i>
+                              Confirm Upload
+                            </button>
+                            <button
+                              class="btn btn-outline-secondary btn-sm"
+                              @click="cancelFileSelection('gcash-' + proof.id)"
+                              :disabled="uploadingDocuments['gcash-' + proof.id]"
+                            >
+                              <i class="fas fa-times me-1"></i>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Beneficiary Verification Documents Section -->
             <div v-if="rejectedBeneficiaryVerifications.length > 0" class="mb-5">
               <h4 class="section-title mb-3">
@@ -493,6 +591,8 @@ import residencyService from '@/services/residencyService';
 import supportingDocumentService from '@/services/supportingDocumentService';
 import beneficiaryVerificationService from '@/services/beneficiaryVerificationService';
 import authorizationDocumentService from '@/services/authorizationDocumentService';
+import gcashPaymentService from '@/services/gcashPaymentService';
+import documentRequestService from '@/services/documentRequestService';
 import api from '@/services/api';
 import DocumentViewer from '@/components/admin/DocumentViewer.vue';
 
@@ -505,6 +605,7 @@ export default {
     return {
       rejectedDocuments: [],
       rejectedSupportingDocuments: [],
+      rejectedGCashProofs: [],
       rejectedBeneficiaryVerifications: [],
       rejectedAuthorizationDocuments: [],
       rejectedPickupPersons: [],
@@ -514,6 +615,7 @@ export default {
       documentBlobUrls: {},
       selectedFiles: {},
       uploadingDocuments: {},
+      gcashReferenceNumbers: {},
       isDestroyed: false
     };
   },
@@ -521,6 +623,7 @@ export default {
     hasNoRejectedDocuments() {
       return (
         (!this.rejectedDocuments || this.rejectedDocuments.length === 0) &&
+        (!this.rejectedGCashProofs || this.rejectedGCashProofs.length === 0) &&
         (!this.rejectedSupportingDocuments || this.rejectedSupportingDocuments.length === 0) &&
         (!this.rejectedPickupPersons || this.rejectedPickupPersons.length === 0) &&
         (!this.rejectedBeneficiaryVerifications || this.rejectedBeneficiaryVerifications.length === 0) &&
@@ -545,12 +648,13 @@ export default {
 
       try {
         // Load all types of rejected documents in parallel
-        const [residencyRes, supportingRes, beneficiaryRes, authorizationRes, pickupRes] = await Promise.all([
+        const [residencyRes, supportingRes, beneficiaryRes, authorizationRes, pickupRes, gcashRes] = await Promise.all([
           residencyService.getRejectedDocuments(),
           supportingDocumentService.getRejectedDocuments(),
           beneficiaryVerificationService.getRejectedVerifications(),
           authorizationDocumentService.getRejectedDocuments(),
-          api.get('/authorized-pickup/rejected/list')
+          api.get('/authorized-pickup/rejected/list'),
+          this.loadRejectedGCashProofs()
         ]);
         
         if (residencyRes.success) {
@@ -572,7 +676,12 @@ export default {
         if (pickupRes.data && pickupRes.data.success) {
           this.rejectedPickupPersons = pickupRes.data.data || [];
         }
-        
+
+        // Handle GCash proofs response
+        if (gcashRes && !gcashRes.success) {
+          console.warn('⚠️ GCash proofs loading failed:', gcashRes.error);
+        }
+
         // Load thumbnails for image documents
         await this.loadDocumentThumbnails();
       } catch (error) {
@@ -873,11 +982,123 @@ export default {
         return 'Marriage Certificate';
       }
       return 'PSA Birth Certificate';
+    },
+
+    // GCash Payment Methods
+    async loadRejectedGCashProofs() {
+      try {
+        console.log('🔄 Loading rejected GCash proofs...');
+        console.log('🔐 Checking authentication token...');
+
+        // Check authentication
+        const authToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        if (!authToken) {
+          console.warn('⚠️ No authentication token found');
+          this.rejectedGCashProofs = [];
+          return { success: false, error: 'Not authenticated' };
+        }
+
+        // Get all requests for the current client
+        const response = await documentRequestService.getMyRequests();
+        console.log('📋 My requests response:', response);
+
+        if (response.success && response.data) {
+          console.log('📊 Total requests received:', response.data.length);
+
+          // Handle different response structures
+          const requests = response.data.requests || response.data;
+
+          // Filter requests with rejected GCash payment proofs
+          const rejectedProofs = requests.filter(request => {
+            const isRejected = request.gcash_verification_status === 'rejected';
+            const isGCash = request.payment_method_code === 'GCASH_MANUAL';
+            console.log('🔍 Checking request:', request.id, {
+              gcash_status: request.gcash_verification_status,
+              payment_method: request.payment_method_code,
+              isRejected,
+              isGCash
+            });
+            return isRejected && isGCash;
+          });
+
+          console.log('🔍 Filtered rejected GCash proofs:', rejectedProofs);
+          this.rejectedGCashProofs = rejectedProofs || [];
+        } else {
+          console.warn('⚠️ No requests data received:', response);
+          this.rejectedGCashProofs = [];
+        }
+
+        // Return success for Promise.all
+        return { success: true };
+      } catch (error) {
+        console.error('❌ Failed to load rejected GCash proofs:', error);
+        this.rejectedGCashProofs = [];
+        // Return error for Promise.all
+        return { success: false, error: error.message };
+      }
+    },
+
+    async uploadGCashProof(proof) {
+      const key = `gcash-${proof.id}`;
+      const file = this.selectedFiles[key];
+      if (!file) return;
+
+      this.uploadingDocuments[key] = true;
+
+      try {
+        const referenceNumber = this.gcashReferenceNumbers[proof.id] || null;
+        const response = await gcashPaymentService.reuploadPaymentProof(
+          proof.id,
+          file,
+          referenceNumber
+        );
+
+        if (response && response.data && response.data.success) {
+          this.$toast?.success('Payment proof reuploaded successfully! Awaiting admin verification.');
+
+          // Remove from rejected list
+          this.rejectedGCashProofs = this.rejectedGCashProofs.filter(p => p.id !== proof.id);
+
+          // Clear selected file and reference number
+          delete this.selectedFiles[key];
+          delete this.gcashReferenceNumbers[proof.id];
+
+          // Clear file input
+          const fileInput = document.getElementById(`file-input-gcash-${proof.id}`);
+          if (fileInput) fileInput.value = '';
+        } else {
+          throw new Error(response?.data?.message || response?.message || 'Failed to reupload payment proof');
+        }
+      } catch (error) {
+        console.error('Failed to reupload GCash proof:', error);
+
+        let errorMessage = 'Failed to reupload payment proof';
+        if (error.response?.status === 400) {
+          errorMessage = error.response.data?.error || 'Invalid payment proof. Please check your file and try again.';
+        } else if (error.response?.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+          this.$router.push('/login');
+        } else if (error.response?.status === 404) {
+          errorMessage = 'Request not found. Please refresh the page.';
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else {
+          errorMessage = error.message || 'Failed to reupload payment proof';
+        }
+
+        this.$toast?.error(errorMessage);
+      } finally {
+        this.uploadingDocuments[key] = false;
+      }
+    },
+
+    formatCurrency(amount) {
+      if (!amount && amount !== 0) return '0.00';
+      return parseFloat(amount).toFixed(2);
     }
   }
-};
+}  
 </script>
-
 <style scoped>
 .rejected-documents-container {
   min-height: 100vh;

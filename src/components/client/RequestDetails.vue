@@ -60,6 +60,15 @@
             <span class="status-badge" :class="getStatusClass(request.status)">
               {{ formatStatus(request.status) }}
             </span>
+            <!-- Show GCash verification status if applicable -->
+            <div v-if="hasPendingGCashVerification(request)" class="gcash-status-indicator">
+              <i class="fas fa-clock text-warning"></i>
+              <small class="text-muted">Payment proof under review</small>
+            </div>
+            <div v-if="hasRejectedGCashVerification(request)" class="gcash-status-indicator">
+              <i class="fas fa-exclamation-triangle text-danger"></i>
+              <small class="text-muted">Payment proof rejected</small>
+            </div>
           </div>
         </div>
 
@@ -590,7 +599,7 @@
           Download Document
         </button> -->
 
-        <!-- I will comment this, I dont need this for now -->x
+        <!-- I will comment this, I dont need this for now -->
         <!-- <button class="action-btn print-btn" @click="printDetails">
           <i class="fas fa-print"></i>
           Print Details
@@ -617,6 +626,18 @@
       :downloadUrl="selectedImage.downloadUrl"
       @close="closeImageViewer"
     />
+
+    <!-- GCash Payment Modal -->
+    <GCashPaymentModal
+      :modal-id="showGCashModal ? 'gcashPaymentModal' : ''"
+      :request-id="request?.id || 0"
+      :request-number="request?.request_number || ''"
+      :amount="request?.total_fee || 0"
+      :payment-status="request?.gcash_verification_status"
+      :is-reupload="request?.gcash_verification_status === 'rejected'"
+      @upload-success="handleGCashUploadSuccess"
+      @close="closeGCashModal"
+    />
   </div>
 </template>
 
@@ -624,11 +645,13 @@
 import documentRequestService from '@/services/documentRequestService';
 import clientAuthService from '@/services/clientAuthService';
 import ImageViewer from '@/components/common/ImageViewer.vue';
+import GCashPaymentModal from '@/components/client/GCashPaymentModal.vue';
 
 export default {
   name: 'RequestDetails',
   components: {
-    ImageViewer
+    ImageViewer,
+    GCashPaymentModal
   },
   data() {
     return {
@@ -637,6 +660,7 @@ export default {
       error: null,
       showImageViewer: false,
       selectedImage: null,
+      showGCashModal: false,
       imageObjectUrls: new Map(), // Track created object URLs for cleanup
       imageUrls: {
         beneficiaryVerification: '',
@@ -1109,10 +1133,22 @@ export default {
       const paymentRequiredStatuses = ['approved', 'payment_pending', 'payment_failed'];
       const unpaidStatuses = ['pending', 'failed', null, undefined, ''];
 
+      // Don't show payment button if GCash proof is already submitted and waiting for review
+      const isGCashProofPending = request.gcash_verification_status === 'pending';
+
       return paymentRequiredStatuses.includes(request.status) &&
              unpaidStatuses.includes(request.payment_status) &&
              request.payment_method_id && // Must have a payment method selected
-             request.is_online_payment; // Only show for online payment methods
+             request.is_online_payment && // Only show for online payment methods
+             !isGCashProofPending; // Don't show if already submitted and waiting for review
+    },
+
+    hasPendingGCashVerification(request) {
+      return request.gcash_verification_status === 'pending' && request.gcash_proof_path;
+    },
+
+    hasRejectedGCashVerification(request) {
+      return request.gcash_verification_status === 'rejected' && request.gcash_proof_path;
     },
 
     canDownload(status) {
@@ -1161,6 +1197,14 @@ export default {
 
     async processPayment() {
       try {
+        // Check if user is authenticated
+        const authToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        if (!authToken) {
+          this.showToast('Error', 'Please log in to process payments.', 'error');
+          this.$router.push('/login');
+          return;
+        }
+
         // Check if request has a payment method selected
         if (!this.request.payment_method_id) {
           this.showToast('Error', 'No payment method selected for this request', 'error');
@@ -1170,6 +1214,14 @@ export default {
         // Check if it's an online payment method
         if (!this.request.is_online_payment) {
           this.showToast('Info', 'This request uses in-person payment. Please pay at the barangay office.', 'info');
+          return;
+        }
+
+        // Check if it's GCash Manual payment
+        if (this.request.payment_method_code === 'GCASH_MANUAL' ||
+            this.request.payment_method === 'GCash Manual Upload') {
+          // Open GCash payment modal
+          this.openGCashModal();
           return;
         }
 
@@ -1205,6 +1257,22 @@ export default {
         const errorMessage = error.response?.data?.message || error.message || 'Failed to initiate payment';
         this.showToast('Error', errorMessage, 'error');
       }
+    },
+
+    openGCashModal() {
+      this.showGCashModal = true;
+    },
+
+    closeGCashModal() {
+      this.showGCashModal = false;
+      // Refresh request details to show updated payment status
+      this.loadRequestDetails();
+    },
+
+    handleGCashUploadSuccess(data) {
+      console.log('GCash proof uploaded:', data);
+      this.showToast('Success', 'Payment proof uploaded successfully!', 'success');
+      // Modal will close automatically and refresh will happen in closeGCashModal
     },
 
     downloadDocument() {

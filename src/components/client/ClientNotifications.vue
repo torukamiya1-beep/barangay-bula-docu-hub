@@ -337,9 +337,10 @@ export default {
             this.showSuccessToast('Document approved! You can now proceed with your requests.');
             break;
 
-          case 'document_rejected':
-            // Navigate to rejected documents page
+          case 'gcash_proof_reuploaded':
+            // Navigate to rejected documents page for GCash reuploads
             targetRoute = { name: 'RejectedDocuments' };
+            this.showSuccessToast('GCash payment proof reuploaded successfully! Awaiting admin review.');
             break;
 
           case 'supporting_document_approved':
@@ -370,8 +371,8 @@ export default {
             this.showSuccessToast('Authorization document approved!');
             break;
 
-          case 'authorization_document_rejected':
-            // Navigate to rejected documents page
+          case 'gcash_payment_rejected':
+            // Navigate to rejected documents page for GCash payment proof rejections
             targetRoute = { name: 'RejectedDocuments' };
             break;
 
@@ -628,8 +629,8 @@ export default {
         'supporting_document_rejected': 'fas fa-times-circle text-danger',
         'beneficiary_verification_approved': 'fas fa-check-circle text-success',
         'beneficiary_verification_rejected': 'fas fa-times-circle text-danger',
-        'authorization_document_approved': 'fas fa-check-circle text-success',
-        'authorization_document_rejected': 'fas fa-times-circle text-danger',
+        'gcash_payment_approved': 'fas fa-check-circle text-success',
+        'gcash_proof_reuploaded': 'fas fa-upload text-info',
         'request_update': 'fas fa-edit text-warning',
         'system_alert': 'fas fa-exclamation-triangle text-danger',
         'test': 'fas fa-vial text-secondary',

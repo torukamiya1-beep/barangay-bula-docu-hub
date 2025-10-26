@@ -640,7 +640,7 @@
                 </div>
                 <div class="fee-item" v-if="convenienceFee > 0">
                   <span>Convenience Fee</span>
-                  <small class="text-muted d-block">PayMongo minimum payment requirement</small>
+                  <small class="text-muted d-block">Online payment minimum requirement</small>
                   <span>₱{{ formatCurrency(convenienceFee) }}</span>
                 </div>
                 <div class="fee-item total">

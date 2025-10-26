@@ -658,7 +658,7 @@
                                   <div class="fee-label">
                                     <i class="fas fa-plus-circle text-warning me-2"></i>
                                     <span class="fw-medium">Convenience Fee</span>
-                                    <small class="text-muted d-block">PayMongo minimum requirement</small>
+                                    <small class="text-muted d-block">System minimum requirement</small>
                                   </div>
                                   <div class="fee-amount">
                                     <span class="h6 mb-0 text-warning">{{ formatCurrency(getConvenienceFee(currentRequest)) }}</span>
@@ -1509,6 +1509,91 @@
 
                         </div>
                       </div>
+
+                      <!-- GCash Payment Proof Section -->
+                      <div v-if="isGCashManualPayment(currentRequest)" class="card mb-4">
+                        <div class="card-header">
+                          <h6 class="mb-0">
+                            <i class="fas fa-mobile-alt me-2"></i>GCash Payment Verification
+                          </h6>
+                        </div>
+                        <div class="card-body">
+                          <!-- Proof Not Uploaded -->
+                          <div v-if="!currentRequest.gcash_proof_path" class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Waiting for client to upload payment proof
+                          </div>
+                          
+                          <!-- Proof Uploaded - Pending Verification -->
+                          <div v-else-if="currentRequest.gcash_verification_status === 'pending'">
+                            <div class="alert alert-warning">
+                              <i class="fas fa-clock me-2"></i>
+                              Payment proof uploaded - Awaiting verification
+                            </div>
+                            
+                            <div class="mb-3">
+                              <label class="form-label fw-bold">Uploaded At</label>
+                              <p>{{ formatDateTime(currentRequest.gcash_proof_uploaded_at) }}</p>
+                            </div>
+                            
+                            <div class="mb-3" v-if="currentRequest.gcash_reference_number">
+                              <label class="form-label fw-bold">GCash Reference Number</label>
+                              <p>{{ currentRequest.gcash_reference_number }}</p>
+                            </div>
+                            
+                            <div class="d-flex gap-2 flex-wrap">
+                              <button class="btn btn-primary" @click="viewGCashProof(currentRequest.id)">
+                                <i class="fas fa-eye me-1"></i>View Payment Proof
+                              </button>
+                              <button class="btn btn-success" @click="approveGCashPayment(currentRequest.id)" title="Verify GCash payment and set status to Payment Confirmed">
+                                <i class="fas fa-check me-1"></i>Approve & Confirm Payment
+                              </button>
+                              <button class="btn btn-danger" @click="rejectGCashPayment(currentRequest.id)">
+                                <i class="fas fa-times me-1"></i>Reject Payment
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <!-- Proof Verified -->
+                          <div v-else-if="currentRequest.gcash_verification_status === 'verified'">
+                            <div class="alert alert-success">
+                              <i class="fas fa-check-circle me-2"></i>
+                              Payment verified and approved
+                            </div>
+                            
+                            <div class="mb-3">
+                              <label class="form-label fw-bold">Verified By</label>
+                              <p>{{ getAdminNameById(currentRequest.gcash_verified_by) }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                              <label class="form-label fw-bold">Verified At</label>
+                              <p>{{ formatDateTime(currentRequest.gcash_verified_at) }}</p>
+                            </div>
+                            
+                            <button class="btn btn-outline-primary" @click="viewGCashProof(currentRequest.id)">
+                              <i class="fas fa-eye me-1"></i>View Payment Proof
+                            </button>
+                            
+                            <!-- View Receipt Button (shown after approval) -->
+                            <button class="btn btn-success mt-2" @click="viewTransactionReceipt(currentRequest.id)">
+                              <i class="fas fa-receipt me-1"></i>View Receipt & Download PDF
+                            </button>
+                          </div>
+                          
+                          <!-- Proof Rejected -->
+                          <div v-else-if="currentRequest.gcash_verification_status === 'rejected'">
+                            <div class="alert alert-danger">
+                              <i class="fas fa-times-circle me-2"></i>
+                              Payment proof rejected
+                            </div>
+
+                            <button class="btn btn-outline-primary" @click="viewGCashProof(currentRequest.id)">
+                              <i class="fas fa-eye me-1"></i>View Rejected Proof
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1876,6 +1961,128 @@
       @verify="verifyPickupAuthorization"
       @reject="rejectPickupAuthorization"
     />
+
+    <!-- Transaction Details Modal (shown after GCash approval) -->
+    <div v-if="showTransactionModal" class="modal-overlay" @click="closeTransactionModal">
+      <div class="modal-content transaction-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Payment Receipt</h3>
+          <button class="modal-close" @click="closeTransactionModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body" v-if="selectedTransaction">
+          <div class="transaction-details">
+            <!-- Receipt Information -->
+            <div class="detail-section">
+              <h4>Receipt Information</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Receipt Number</label>
+                  <span class="receipt-number">{{ selectedTransaction.receipt_number }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Receipt Date</label>
+                  <span>{{ formatDateTime(selectedTransaction.receipt_date) }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Payment Date</label>
+                  <span>{{ formatDateTime(selectedTransaction.payment_date) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Client Information -->
+            <div class="detail-section">
+              <h4>Client Information</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Full Name</label>
+                  <span>{{ selectedTransaction.client_name }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Email</label>
+                  <span>{{ selectedTransaction.client_email }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Phone</label>
+                  <span>{{ selectedTransaction.client_phone }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Request Information -->
+            <div class="detail-section">
+              <h4>Request Information</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Request Number</label>
+                  <span>{{ selectedTransaction.request_number }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Document Type</label>
+                  <span>{{ selectedTransaction.document_type }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="detail-section">
+              <h4>Payment Information</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Payment Method</label>
+                  <span>{{ selectedTransaction.payment_method }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Amount</label>
+                  <span class="amount">₱{{ formatAmount(selectedTransaction.amount) }}</span>
+                </div>
+                <div class="detail-item" v-if="selectedTransaction.payment_status">
+                  <label>Status</label>
+                  <span class="status-badge" :class="`status-${selectedTransaction.payment_status}`">
+                    {{ selectedTransaction.payment_status || 'Unknown' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transaction IDs -->
+            <div class="detail-section" v-if="selectedTransaction.external_transaction_id">
+              <h4>Transaction References</h4>
+              <div class="detail-grid">
+                <div class="detail-item" v-if="selectedTransaction.external_transaction_id">
+                  <label>External Transaction ID</label>
+                  <span class="transaction-id">{{ selectedTransaction.external_transaction_id }}</span>
+                </div>
+                <div class="detail-item" v-if="selectedTransaction.paymongo_payment_intent_id">
+                  <label>PayMongo Payment Intent</label>
+                  <span class="transaction-id">{{ selectedTransaction.paymongo_payment_intent_id }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section" v-if="selectedTransaction.description">
+              <h4>Description</h4>
+              <p class="description">{{ selectedTransaction.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-primary" @click="downloadReceipt" :disabled="downloadingReceipt">
+            <i class="fas fa-download" :class="{ 'fa-spin': downloadingReceipt }"></i>
+            {{ downloadingReceipt ? 'Preparing...' : 'Download Receipt' }}
+          </button>
+          <button class="btn btn-secondary" @click="closeTransactionModal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
 </template>
 
 <script>
@@ -1887,6 +2094,7 @@ import adminDocumentService from '@/services/adminDocumentService';
 import supportingDocumentService from '@/services/supportingDocumentService';
 import beneficiaryVerificationService from '@/services/beneficiaryVerificationService';
 import authorizationDocumentService from '@/services/authorizationDocumentService';
+import gcashPaymentService from '@/services/gcashPaymentService';
 import api from '@/services/api';
 import { Modal } from 'bootstrap';
 import notificationService from '@/services/notificationService';
@@ -2017,7 +2225,16 @@ export default {
       refreshInterval: null,
       autoRefreshEnabled: true,
       refreshRate: 30000, // 30 seconds
-      lastRefresh: null
+      lastRefresh: null,
+
+      // Transaction Modal
+      showTransactionModal: false,
+      selectedTransaction: null,
+      downloadingReceipt: false,
+
+      // GCash Payment Verification
+      showGCashProofModal: false,
+      gcashProofImageUrl: ''
     };
   },
 
@@ -2511,8 +2728,7 @@ export default {
       } catch (error) {
         console.error('Failed to load request details:', error);
         const errorData = adminDocumentService.parseError(error);
-        this.errorMessage = errorData.message || 'Failed to load request details';
-        this.showToast('Error', 'Failed to load request details', 'error');
+        this.showToast('Error', errorData.message || 'Failed to load request details', 'error');
       }
     },
 
@@ -2972,7 +3188,28 @@ export default {
         status !== 'cancelled' && status !== 'rejected'
       );
 
-      return progressionTransitions.map(statusName => {
+      // For GCash manual payments, only show 'payment_confirmed' if GCash has been verified
+      let filteredTransitions = progressionTransitions;
+      if (this.isGCashManualPayment(this.currentRequest)) {
+        if (this.currentRequest.gcash_verification_status !== 'verified') {
+          // Remove 'payment_confirmed' from available actions if GCash is not verified
+          filteredTransitions = progressionTransitions.filter(status =>
+            status !== 'payment_confirmed'
+          );
+          console.log('🔍 GCash manual payment detected - payment_confirmed button hidden until GCash verification:', {
+            gcashStatus: this.currentRequest.gcash_verification_status,
+            originalTransitions: progressionTransitions,
+            filteredTransitions: filteredTransitions
+          });
+        } else {
+          console.log('🔍 GCash manual payment verified - payment_confirmed button available:', {
+            gcashStatus: this.currentRequest.gcash_verification_status,
+            availableTransitions: progressionTransitions
+          });
+        }
+      }
+
+      return filteredTransitions.map(statusName => {
         const statusOption = this.statusOptions.find(s => s.status_name.toLowerCase() === statusName);
         if (!statusOption) return null;
 
@@ -3058,42 +3295,72 @@ export default {
       return !finalStates.includes(currentStatus);
     },
 
-    // Progress to next status automatically
-    async progressToNextStatus(statusId) {
-      if (!statusId || !this.currentRequest) {
-        this.showToast('Error', 'Invalid status selection', 'error');
+    // View GCash payment proof image
+    viewGCashProof(requestOrId) {
+      console.log('🔍 View GCash proof clicked for request:', requestOrId);
+
+      // Handle both request object and request ID
+      let requestData;
+
+      if (typeof requestOrId === 'number') {
+        // If passed an ID, use currentRequest
+        requestData = this.currentRequest;
+      } else {
+        // If passed a request object
+        requestData = requestOrId;
+      }
+
+      console.log('📋 Request data:', requestData);
+      console.log('📁 GCash proof path:', requestData?.gcash_proof_path);
+
+      if (!requestData || !requestData.gcash_proof_path) {
+        this.showToast('Warning', 'No payment proof uploaded for this request', 'warning');
         return;
       }
 
-      try {
-        const updateData = {
-          status_id: parseInt(statusId)
-        };
+      // Extract filename from path (e.g., "uploads/gcash_proofs/gcash-proof-xxx.png" -> "gcash-proof-xxx.png")
+      const filename = requestData.gcash_proof_path.split('/').pop();
 
-        console.log('📤 Progressing to next status:', updateData);
+      // Construct direct URL to the uploaded file
+      const baseUrl = process.env.VUE_APP_API_URL?.replace('/api', '') || 'http://localhost:7000';
+      const imageUrl = `${baseUrl}/uploads/gcash_proofs/${filename}`;
 
-        const response = await adminDocumentService.updateRequestStatus(
-          this.currentRequest.id,
-          updateData
-        );
+      console.log('🔗 Opening image in modal:', imageUrl);
 
-        if (response.success) {
-          // Refresh the request details
-          await this.refreshRequestDetails();
-          // Refresh the main requests list
-          await this.loadRequests();
+      // Use the existing displayImageInModal method
+      this.displayImageInModal(imageUrl, 'GCash Payment Proof');
+    },
 
-          // Show success message
-          const newStatus = this.statusOptions.find(s => s.id === parseInt(statusId));
-          this.showToast('Success', `Request status updated to ${this.formatStatus(newStatus.status_name)}`, 'success');
-        } else {
-          this.showToast('Error', response.message || 'Failed to update request status', 'error');
-        }
-      } catch (error) {
-        console.error('❌ Error progressing status:', error);
-        const errorData = adminDocumentService.parseError(error);
-        this.showToast('Error', errorData.message || 'Failed to update request status', 'error');
-      }
+    // GCash payment methods
+    isGCashManualPayment(request) {
+      return request.payment_method === 'GCash Manual Upload' ||
+             request.payment_method_code === 'GCASH_MANUAL' ||
+             request.payment_method_id === 7; // Assuming GCash Manual is ID 7
+    },
+
+    // Check if request has GCash proof uploaded
+    hasGCashProof(request) {
+      return request.gcash_proof_path && request.gcash_proof_path.trim() !== '';
+    },
+
+    // Get verification status color for GCash
+    getGCashVerificationStatusColor(status) {
+      const colors = {
+        'pending': 'bg-warning',
+        'verified': 'bg-success',
+        'rejected': 'bg-danger'
+      };
+      return colors[status] || 'bg-secondary';
+    },
+
+    // Format GCash verification status
+    formatGCashVerificationStatus(status) {
+      const statuses = {
+        'pending': 'Pending Verification',
+        'verified': 'Verified',
+        'rejected': 'Rejected'
+      };
+      return statuses[status] || 'Unknown';
     },
 
     // Cancel request permanently
@@ -4098,7 +4365,7 @@ export default {
     getConvenienceFeeExplanation(request) {
       const convenienceFee = this.getConvenienceFee(request);
       if (convenienceFee > 0) {
-        return `PayMongo requires a minimum payment of ₱100.00. A convenience fee of ₱${convenienceFee.toFixed(2)} was added to meet this requirement.`;
+        return `System requires a minimum payment of ₱100.00. A convenience fee of ₱${convenienceFee.toFixed(2)} was added to meet this requirement.`;
       }
       return '';
     },
@@ -5497,6 +5764,404 @@ export default {
       } catch (error) {
         // Error handling is done in updateBeneficiaryVerificationStatus
       }
+    },
+
+    closeGCashProofModal() {
+      this.showGCashProofModal = false;
+      this.gcashProofImageUrl = '';
+    },
+
+    async approveGCashPayment(requestId) {
+      try {
+        const confirmed = confirm('Are you sure you want to approve this GCash payment? This will verify the payment proof and automatically set the document status to "Payment Confirmed".');
+        if (!confirmed) return;
+
+        const response = await gcashPaymentService.verifyPaymentProof(requestId);
+
+        // Check if response exists and has success property
+        if (response && response.data && response.data.success) {
+          this.$toast.success('GCash payment verified and document status updated to Payment Confirmed! Client has been notified.');
+
+          // After successful GCash verification, also update document status to payment_confirmed
+          try {
+            // Find the payment_confirmed status
+            const paymentConfirmedStatus = this.statusOptions.find(s =>
+              s.status_name.toLowerCase() === 'payment_confirmed'
+            );
+
+            if (paymentConfirmedStatus) {
+              console.log('🔄 Auto-updating document status to payment_confirmed after GCash approval');
+
+              const statusResponse = await adminDocumentService.updateRequestStatus(requestId, {
+                status_id: paymentConfirmedStatus.id,
+                reason: 'GCash payment verified and confirmed'
+              });
+
+              if (statusResponse.success) {
+                console.log('✅ Document status updated to payment_confirmed');
+                // Success message already shown above
+              } else {
+                console.warn('⚠️ Document status update failed:', statusResponse.message);
+                this.$toast.warning('GCash approved but document status update failed. Please update manually.');
+              }
+            } else {
+              console.warn('⚠️ payment_confirmed status not found in status options');
+            }
+          } catch (statusError) {
+            console.error('❌ Error updating document status after GCash approval:', statusError);
+            this.$toast.warning('GCash approved but document status update failed. Please update manually.');
+          }
+
+          // Refresh the request details
+          await this.refreshRequestDetails();
+
+          // Fetch and display transaction details
+          try {
+            const transactionDetails = await this.fetchTransactionDetails(requestId);
+            if (transactionDetails) {
+              console.log('🧾 Displaying transaction details modal');
+              this.selectedTransaction = transactionDetails;
+              this.showTransactionModal = true;
+              this.showToast('Success', `Payment approved! Receipt: ${transactionDetails.receipt_number || 'Generated'}`, 'success');
+            } else {
+              console.log('ℹ️ No transaction details available yet, showing basic success message');
+              this.showToast('Success', 'Payment approved successfully! Receipt will be available shortly.', 'success');
+            }
+          } catch (transactionError) {
+            console.warn('⚠️ Could not fetch transaction details:', transactionError.message);
+            // Don't show error toast for this - the main approval was successful
+            this.showToast('Success', 'Payment approved successfully!', 'success');
+          }
+        } else {
+          // Handle unexpected response format
+          console.error('Unexpected response format:', response);
+          throw new Error('Invalid response format from server');
+        }
+      } catch (error) {
+        console.error('Error approving GCash payment:', error);
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
+
+        let errorMessage = 'Failed to approve payment';
+
+        if (error.response?.status === 400) {
+          errorMessage = error.response.data?.error || 'Payment verification failed. Please check the payment proof.';
+        } else if (error.response?.status === 404) {
+          errorMessage = 'Payment proof not found. Please contact support.';
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        this.$toast.error(errorMessage);
+      }
+    },
+
+    async rejectGCashPayment(requestId) {
+      try {
+        const confirmed = confirm('Are you sure you want to reject this GCash payment? The client will be notified to reupload their payment proof.');
+        if (!confirmed) return;
+
+        const response = await gcashPaymentService.rejectPaymentProof(requestId);
+
+        // Check if response exists and has success property
+        if (response && response.data && response.data.success) {
+          const message = response.data.data?.isUpdate
+            ? 'Payment rejection updated successfully! Client has been notified via SMS, Email, and System notification.'
+            : 'Payment proof rejected successfully! Client has been notified via SMS, Email, and System notification.';
+          this.$toast.success(message);
+          // Refresh the request details
+          await this.refreshRequestDetails();
+        } else {
+          // Handle unexpected response format
+          console.error('Unexpected response format:', response);
+          throw new Error('Invalid response format from server');
+        }
+      } catch (error) {
+        console.error('Error rejecting GCash payment:', error);
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: error.config,
+          request: error.request
+        });
+
+        let errorMessage = 'Failed to reject payment';
+
+        // Safely check error response properties
+        if (error.response && error.response.status === 400) {
+          errorMessage = error.response.data?.error || error.response.data?.message || 'Payment rejection failed. Please check the payment proof status.';
+        } else if (error.response && error.response.status === 404) {
+          errorMessage = 'Payment proof not found. Please refresh the page.';
+        } else if (error.response && error.response.data) {
+          if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else {
+          errorMessage = 'An unexpected error occurred while rejecting the payment.';
+        }
+
+        this.$toast.error(errorMessage);
+      }
+    },
+
+    getAdminNameById(adminId) {
+      if (!adminId) return 'N/A';
+      // Try to get from current admin data
+      if (this.adminData && this.adminData.id === adminId) {
+        return this.adminData.username || this.adminData.email;
+      }
+      // Otherwise just return the ID
+      return `Admin #${adminId}`;
+    },
+
+    // Fetch transaction details after GCash approval
+    async fetchTransactionDetails(requestId) {
+      try {
+        console.log('🔄 Fetching transaction details for request:', requestId);
+
+        // Try to fetch from the receipts endpoint (similar to ClientTransactions.vue)
+        const response = await api.get(`/admin/receipts/${requestId}`);
+
+        if (response.data.success && response.data.data) {
+          console.log('✅ Transaction details fetched:', response.data.data);
+          return response.data.data;
+        } else {
+          console.warn('⚠️ No transaction record found, using request data instead');
+          // If no transaction record exists, return null and handle gracefully
+          return null;
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not fetch transaction details:', error.message);
+        // Return null if transaction fetch fails - this is not critical
+        return null;
+      }
+    },
+
+    // View transaction receipt modal
+    async viewTransactionReceipt(requestId) {
+      try {
+        console.log('🧾 Viewing transaction receipt for request:', requestId);
+        
+        // Fetch transaction details
+        const transactionDetails = await this.fetchTransactionDetails(requestId);
+        
+        if (transactionDetails) {
+          this.selectedTransaction = transactionDetails;
+          this.showTransactionModal = true;
+          console.log('✅ Transaction modal opened');
+        } else {
+          this.showToast('Warning', 'Receipt details are not available yet. Please try again in a moment.', 'warning');
+        }
+      } catch (error) {
+        console.error('❌ Error viewing transaction receipt:', error);
+        this.showToast('Error', 'Failed to load receipt details', 'error');
+      }
+    },
+
+    // Close transaction modal
+    closeTransactionModal() {
+      this.showTransactionModal = false;
+      this.selectedTransaction = null;
+    },
+
+    async downloadReceipt() {
+      if (!this.selectedTransaction) return;
+      await this.generateTransactionPDF(this.selectedTransaction);
+    },
+
+    async generateTransactionPDF(transaction) {
+      try {
+        this.downloadingReceipt = true;
+
+        // Create PDF with transaction details
+        const pdf = new jsPDF();
+
+        // Set up fonts and colors
+        const primaryColor = [45, 55, 72]; // #2d3748
+        const accentColor = [102, 126, 234]; // #667eea
+        const textColor = [74, 85, 104]; // #4a5568
+
+        // Header
+        pdf.setFillColor(...primaryColor);
+        pdf.rect(0, 0, 210, 40, 'F');
+
+        // Title
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(24);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('PAYMENT RECEIPT', 105, 20, { align: 'center' });
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Barangay Online Services for Document Requests', 105, 30, { align: 'center' });
+
+        // Reset text color
+        pdf.setTextColor(...textColor);
+
+        // Receipt Information Section
+        let yPos = 60;
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...accentColor);
+        pdf.text('Receipt Information', 20, yPos);
+
+        yPos += 15;
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...textColor);
+
+        const receiptInfo = [
+          ['Receipt Number:', transaction.receipt_number || 'N/A'],
+          ['Receipt Date:', this.formatDate(transaction.receipt_date)],
+          ['Payment Date:', this.formatDate(transaction.payment_date || transaction.receipt_date)],
+          ['Status:', transaction.payment_status || 'Unknown']
+        ];
+
+        receiptInfo.forEach(([label, value]) => {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(label, 20, yPos);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(value, 80, yPos);
+          yPos += 8;
+        });
+
+        // Client Information Section
+        yPos += 10;
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...accentColor);
+        pdf.text('Client Information', 20, yPos);
+
+        yPos += 15;
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...textColor);
+
+        const clientInfo = [
+          ['Client Name:', transaction.client_name || 'N/A'],
+          ['Email:', transaction.client_email || 'N/A'],
+          ['Phone:', transaction.client_phone || 'N/A']
+        ];
+
+        clientInfo.forEach(([label, value]) => {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(label, 20, yPos);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(value, 80, yPos);
+          yPos += 8;
+        });
+
+        // Document Information Section
+        yPos += 10;
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...accentColor);
+        pdf.text('Document Information', 20, yPos);
+
+        yPos += 15;
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...textColor);
+
+        const documentInfo = [
+          ['Request Number:', transaction.request_number || 'N/A'],
+          ['Document Type:', transaction.document_type || 'N/A'],
+          ['Description:', transaction.description || 'Payment for document request']
+        ];
+
+        documentInfo.forEach(([label, value]) => {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(label, 20, yPos);
+          pdf.setFont('helvetica', 'normal');
+          const splitText = pdf.splitTextToSize(value, 110);
+          pdf.text(splitText, 80, yPos);
+          yPos += splitText.length * 6;
+        });
+
+        // Payment Information Section
+        yPos += 10;
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...accentColor);
+        pdf.text('Payment Information', 20, yPos);
+
+        yPos += 15;
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...textColor);
+
+        const paymentInfo = [
+          ['Payment Method:', transaction.payment_method || 'GCash Payment'],
+          ['Amount:', `PHP ${this.formatAmount(transaction.amount)}`],
+          ['Currency:', transaction.currency || 'PHP']
+        ];
+
+        paymentInfo.forEach(([label, value]) => {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(label, 20, yPos);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(value, 80, yPos);
+          yPos += 8;
+        });
+
+        // Total Amount Highlight
+        yPos += 5;
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(15, yPos - 5, 180, 15, 'F');
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(...primaryColor);
+        pdf.text('Total Amount Paid:', 20, yPos + 5);
+        pdf.setTextColor(...accentColor);
+        pdf.text(`PHP ${this.formatAmount(transaction.amount)}`, 120, yPos + 5);
+
+        // Footer
+        yPos += 25;
+        if (yPos < 270) {
+          yPos = 270;
+        }
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(128, 128, 128);
+        pdf.text('This is a computer-generated receipt. No signature required.', 105, yPos, { align: 'center' });
+        pdf.text(`Generated on: ${new Date().toLocaleString()}`, 105, yPos + 8, { align: 'center' });
+
+        // Transaction ID footer
+        if (transaction.external_transaction_id) {
+          pdf.text(`Transaction ID: ${transaction.external_transaction_id}`, 105, yPos + 16, { align: 'center' });
+        }
+
+        // Generate filename
+        const filename = `Receipt_${transaction.receipt_number || transaction.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+        // Save the PDF
+        pdf.save(filename);
+
+        this.showToast('Success', 'Receipt downloaded successfully!', 'success');
+
+      } catch (error) {
+        console.error('Failed to generate transaction PDF:', error);
+        this.showToast('Error', 'Failed to generate PDF receipt', 'error');
+      } finally {
+        this.downloadingReceipt = false;
+      }
+    },
+
+    formatAmount(amount) {
+      if (!amount) return '0.00';
+      return parseFloat(amount).toFixed(2);
     }
   }
 };
@@ -5511,6 +6176,7 @@ export default {
   line-height: 1.3;
 }
 
+/* ... rest of the code remains the same ... */
 .fee-breakdown .base-fee,
 .fee-breakdown .convenience-fee,
 .fee-breakdown .total-fee {
@@ -5624,5 +6290,192 @@ export default {
   .payment-summary-card {
     margin-top: 1rem;
   }
+}
+/* Transaction Modal Styling */
+.transaction-modal {
+  max-width: 800px;
+  width: 90%;
+}
+
+.transaction-details {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.detail-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.detail-section h4 {
+  margin-bottom: 1rem;
+  color: #2d3748;
+  font-weight: 600;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 0.5rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item span {
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.receipt-number {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #667eea;
+  background-color: #f7fafc;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.amount {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #38a169;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.status-succeeded {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.status-badge.status-pending {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.status-badge.status-processing {
+  background-color: #fefcbf;
+  color: #744210;
+}
+
+.transaction-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  background-color: #f7fafc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.description {
+  background-color: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Higher than request details modal */
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #667eea;
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.modal-footer .btn {
+  min-width: 120px;
 }
 </style>

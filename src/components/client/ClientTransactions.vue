@@ -772,9 +772,9 @@ export default {
 
         const paymentInfo = [
           ['Payment Method:', transactionData.payment_method || 'Online Payment'],
-          ['Amount:', `₱${this.formatAmount(transactionData.amount)}`],
-          ['Processing Fee:', `₱${this.formatAmount(transactionData.processing_fee || 0)}`],
-          ['Net Amount:', `₱${this.formatAmount(transactionData.net_amount || transactionData.amount)}`],
+          ['Amount:', `PHP ${this.formatAmount(transactionData.amount)}`],
+          ['Processing Fee:', `PHP ${this.formatAmount(transactionData.processing_fee || 0)}`],
+          ['Net Amount:', `PHP ${this.formatAmount(transactionData.net_amount || transactionData.amount)}`],
           ['Currency:', transactionData.currency || 'PHP']
         ]
 
@@ -795,7 +795,7 @@ export default {
         pdf.setTextColor(...primaryColor)
         pdf.text('Total Amount Paid:', 20, yPos + 5)
         pdf.setTextColor(...accentColor)
-        pdf.text(`₱${this.formatAmount(transactionData.net_amount || transactionData.amount)}`, 120, yPos + 5)
+        pdf.text(`PHP ${this.formatAmount(transactionData.net_amount || transactionData.amount)}`, 120, yPos + 5)
 
         // Footer
         yPos += 25 // Position footer after content with a gap

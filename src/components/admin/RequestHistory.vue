@@ -3689,7 +3689,7 @@ export default {
     getConvenienceFeeExplanation(request) {
       const convenienceFee = this.getConvenienceFee(request);
       if (convenienceFee > 0) {
-        return `PayMongo requires a minimum payment of ₱100.00. A convenience fee of ₱${convenienceFee.toFixed(2)} was added to meet this requirement.`;
+        return `System requires a minimum payment of ₱100.00. A convenience fee of ₱${convenienceFee.toFixed(2)} was added to meet this requirement.`;
       }
       return '';
     },

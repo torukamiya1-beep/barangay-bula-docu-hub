@@ -22,6 +22,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${authToken}`;
     }
 
+    // For file uploads, don't set Content-Type - let browser set it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     // Debug logging for API requests
     if (config.url?.includes('/users') || config.url?.includes('/admin/') || config.url?.includes('/client/')) {
       console.log('🔗 API Request:', {

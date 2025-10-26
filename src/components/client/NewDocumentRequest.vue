@@ -384,28 +384,28 @@ export default {
         rejectedDocumentsLoading.value = true;
 
         // Import services dynamically
-        const [
-          residencyService,
-          supportingDocumentService,
-          beneficiaryVerificationService,
-          authorizationDocumentService,
-          api
-        ] = await Promise.all([
-          import('@/services/residencyService'),
-          import('@/services/supportingDocumentService'),
-          import('@/services/beneficiaryVerificationService'),
-          import('@/services/authorizationDocumentService'),
-          import('@/services/api')
-        ]);
+        const residencyServiceModule = await import('@/services/residencyService');
+        const supportingDocumentServiceModule = await import('@/services/supportingDocumentService');
+        const beneficiaryVerificationServiceModule = await import('@/services/beneficiaryVerificationService');
+        const authorizationDocumentServiceModule = await import('@/services/authorizationDocumentService');
+        const apiModule = await import('@/services/api');
+
+        const residencyService = residencyServiceModule.default;
+        const supportingDocumentService = supportingDocumentServiceModule.default;
+        const beneficiaryVerificationService = beneficiaryVerificationServiceModule.default;
+        const authorizationDocumentService = authorizationDocumentServiceModule.default;
+        const api = apiModule.default;
 
         // Load all rejected documents in parallel
-        const [residencyRes, supportingRes, beneficiaryRes, authorizationRes, pickupRes] = await Promise.all([
-          residencyService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
-          supportingDocumentService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
-          beneficiaryVerificationService.default.getRejectedVerifications().catch(() => ({ success: false, data: [] })),
-          authorizationDocumentService.default.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
-          api.default.get('/authorized-pickup/rejected/list').catch(() => ({ data: { success: false, data: [] } }))
+        const results = await Promise.all([
+          residencyService.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          supportingDocumentService.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          beneficiaryVerificationService.getRejectedVerifications().catch(() => ({ success: false, data: [] })),
+          authorizationDocumentService.getRejectedDocuments().catch(() => ({ success: false, data: [] })),
+          api.get('/authorized-pickup/rejected/list').catch(() => ({ data: { success: false, data: [] } }))
         ]);
+
+        const [residencyRes, supportingRes, beneficiaryRes, authorizationRes, pickupRes] = results;
 
         // Calculate total count
         let totalCount = 0;
@@ -428,6 +428,12 @@ export default {
 
         if (pickupRes.data && pickupRes.data.success && Array.isArray(pickupRes.data.data)) {
           totalCount += pickupRes.data.data.length;
+        }
+
+        // Load GCash proofs separately
+        const gcashProofs = await loadRejectedGCashProofs();
+        if (Array.isArray(gcashProofs)) {
+          totalCount += gcashProofs.length;
         }
 
         rejectedDocumentsCount.value = totalCount;
@@ -581,6 +587,48 @@ export default {
       }
     }
 
+    // GCash Payment Methods
+    const loadRejectedGCashProofs = async () => {
+      try {
+        console.log('🔄 Loading rejected GCash proofs count...');
+
+        // Check authentication
+        const authToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        if (!authToken) {
+          console.warn('⚠️ No authentication token found');
+          return [];
+        }
+
+        // Get all requests for the current client
+        const documentRequestService = (await import('@/services/documentRequestService')).default;
+        const response = await documentRequestService.getMyRequests();
+        console.log('📋 My requests response:', response);
+
+        if (response.success && response.data) {
+          console.log('📊 Total requests received:', response.data.length);
+
+          // Handle different response structures
+          const requests = response.data.requests || response.data;
+
+          // Filter requests with rejected GCash payment proofs
+          const rejectedProofs = requests.filter(request => {
+            const isRejected = request.gcash_verification_status === 'rejected';
+            const isGCash = request.payment_method_code === 'GCASH_MANUAL';
+            return isRejected && isGCash;
+          });
+
+          console.log('🔍 Filtered rejected GCash proofs count:', rejectedProofs.length);
+          return rejectedProofs || [];
+        } else {
+          console.warn('⚠️ No requests data received:', response);
+          return [];
+        }
+      } catch (error) {
+        console.error('❌ Failed to load rejected GCash proofs count:', error);
+        return [];
+      }
+    }
+
     return {
       // Refs
       servicesSection,
@@ -592,6 +640,8 @@ export default {
       uiState,
       loading,
       error,
+      rejectedDocumentsCount,
+      rejectedDocumentsLoading,
 
       // Computed
       headerUserData,
@@ -604,16 +654,21 @@ export default {
       residencyStatus,
       refreshingStatus,
 
-      // Rejected documents
-      rejectedDocumentsCount,
-      rejectedDocumentsLoading,
+      loadRejectedDocumentsCount,
 
-      // Methods
+      loadRejectedGCashProofs,
+
+      // Help Dialog Data
+      showHelpDialog,
+      helpData,
+
+      loadDocumentTypes,
+
+      // Event handlers
       handleSidebarToggle,
       handleUserDropdownToggle,
       handleMenuAction,
       handleLogout,
-      handleError,
       handleSearch,
       scrollToServices,
       goToMyRequests,
@@ -623,18 +678,11 @@ export default {
       openHelp,
       closeDialog,
       handleOpenFAQ,
-      handleContactSupport,
       contactSupport,
       selectDocumentType,
-      loadResidencyStatus,
-      refreshResidencyStatus,
-
-      // Help Dialog Data
-      showHelpDialog,
-      helpData,
-
-      loadDocumentTypes
+      refreshResidencyStatus
     }
+    
   }
 }
 </script>
