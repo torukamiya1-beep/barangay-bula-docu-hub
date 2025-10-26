@@ -39,7 +39,7 @@ class GCashPaymentService {
     );
 
     console.log('✅ Payment proof uploaded successfully:', response.data);
-    return response; // Return full response object, not just response.data
+    return response.data; // Return response data
   }
 
   /**
@@ -65,7 +65,7 @@ class GCashPaymentService {
     );
 
     console.log('✅ Payment proof reuploaded successfully:', response.data);
-    return response; // Return full response object, not just response.data
+    return response.data; // Return response data
   }
 
   /**
@@ -91,7 +91,7 @@ class GCashPaymentService {
       );
 
       console.log('✅ Payment proof verified successfully:', response.data);
-      return response; // Return full response object, not just response.data
+      return response.data; // Return response data
     } catch (error) {
       console.error('❌ Error verifying payment proof:', error);
       throw error;
@@ -111,7 +111,7 @@ class GCashPaymentService {
     );
 
     console.log('✅ Payment proof rejected successfully:', response.data);
-    return response; // Return full response object, not just response.data
+    return response.data; // Return response data
   }
 
   /**

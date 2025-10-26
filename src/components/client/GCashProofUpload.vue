@@ -233,6 +233,13 @@ export default {
       try {
         const refNumber = this.referenceNumber.trim() || null;
         
+        console.log('📤 Starting upload...', {
+          requestId: this.requestId,
+          isReupload: this.isReupload,
+          hasFile: !!this.selectedFile,
+          refNumber
+        });
+
         let response;
         if (this.isReupload) {
           response = await gcashPaymentService.reuploadPaymentProof(
@@ -248,8 +255,13 @@ export default {
           );
         }
 
+        console.log('📥 Upload response received:', response);
+        console.log('📥 Response type:', typeof response);
+        console.log('📥 Response keys:', response ? Object.keys(response) : 'null/undefined');
+
         // Check if upload was successful
         if (response && response.success) {
+          console.log('✅ Upload successful!');
           this.uploadSuccess = true;
           this.selectedFile = null;
           this.imagePreview = null;
@@ -269,6 +281,7 @@ export default {
           }, 2000);
         } else {
           // Handle unexpected response format
+          console.error('❌ Unexpected response format:', response);
           throw new Error('Unexpected response format from server');
         }
       } catch (error) {
