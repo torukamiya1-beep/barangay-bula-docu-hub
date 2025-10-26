@@ -3284,6 +3284,49 @@ export default {
       return descriptions[statusName] || `Change status to ${this.formatStatus(statusName)}`;
     },
 
+    // Progress to next status (called by status progression buttons)
+    async progressToNextStatus(statusId) {
+      try {
+        console.log('🔄 Progressing to next status:', statusId);
+        
+        if (!this.currentRequest) {
+          this.showToast('Error', 'No request selected', 'error');
+          return;
+        }
+
+        // Find the status name
+        const statusOption = this.statusOptions.find(s => s.id === statusId);
+        if (!statusOption) {
+          this.showToast('Error', 'Invalid status selected', 'error');
+          return;
+        }
+
+        const statusName = statusOption.status_name.toLowerCase();
+        console.log('📊 Status name:', statusName);
+
+        // For certain statuses, show confirmation dialog
+        const confirmationNeeded = ['approved', 'rejected', 'completed'];
+        if (confirmationNeeded.includes(statusName)) {
+          const confirmMessage = `Are you sure you want to ${statusOption.status_name.toLowerCase()} this request?`;
+          if (!confirm(confirmMessage)) {
+            return;
+          }
+        }
+
+        // Update the status
+        await this.updateRequestStatus(this.currentRequest.id, statusId, `Status changed to ${statusOption.status_name}`);
+        
+        this.showToast('Success', `Request status updated to ${statusOption.status_name}`, 'success');
+        
+        // Refresh the request details
+        await this.refreshRequestDetails();
+        
+      } catch (error) {
+        console.error('❌ Error progressing to next status:', error);
+        this.showToast('Error', error.message || 'Failed to update status', 'error');
+      }
+    },
+
     // Check if request can be cancelled
     canCancelRequest() {
       if (!this.currentRequest) return false;
