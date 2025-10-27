@@ -146,7 +146,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="transaction in transactions" :key="transaction.id" class="transaction-row">
+                <tr v-for="transaction in transactions" :key="transaction.id || transaction.request_id" class="transaction-row">
                   <td>
                     <span class="receipt-number">{{ transaction.receipt_number }}</span>
                   </td>
@@ -186,10 +186,10 @@
                       <button
                         class="btn btn-sm btn-success"
                         @click="downloadReceiptDirect(transaction)"
-                        :disabled="downloadingReceipt === transaction.id"
+                        :disabled="downloadingReceipt === (transaction.id || transaction.request_id)"
                         title="Download Receipt"
                       >
-                        <i class="fas fa-download" :class="{ 'fa-spin': downloadingReceipt === transaction.id }"></i>
+                        <i class="fas fa-download" :class="{ 'fa-spin': downloadingReceipt === (transaction.id || transaction.request_id) }"></i>
                         <span class="btn-text">PDF</span>
                       </button>
                     </div>
@@ -203,7 +203,7 @@
           <div class="mobile-cards">
             <div
               v-for="transaction in transactions"
-              :key="transaction.id"
+              :key="transaction.id || transaction.request_id"
               class="transaction-card"
             >
               <div class="card-header">
@@ -251,9 +251,9 @@
                 <button
                   class="btn btn-sm btn-success"
                   @click="downloadReceiptDirect(transaction)"
-                  :disabled="downloadingReceipt === transaction.id"
+                  :disabled="downloadingReceipt === (transaction.id || transaction.request_id)"
                 >
-                  <i class="fas fa-download" :class="{ 'fa-spin': downloadingReceipt === transaction.id }"></i>
+                  <i class="fas fa-download" :class="{ 'fa-spin': downloadingReceipt === (transaction.id || transaction.request_id) }"></i>
                   Download PDF
                 </button>
               </div>
@@ -609,6 +609,18 @@ export default {
     async viewTransaction(transaction) {
       try {
         this.loading = true
+        
+        // For generated receipts (from document_requests), id is null
+        // In this case, we already have all the data we need from the list
+        if (!transaction.id || transaction.source === 'generated') {
+          // Use the transaction data directly since it's already complete
+          this.selectedTransaction = transaction
+          this.showTransactionModal = true
+          this.loading = false
+          return
+        }
+
+        // For actual receipts from receipts table, fetch full details
         const response = await api.get(`/client/receipts/${transaction.id}`)
 
         if (response.data.success) {
@@ -641,11 +653,14 @@ export default {
 
     async generatePDF(transaction) {
       try {
-        this.downloadingReceipt = transaction.id
+        // Use request_id as fallback for generated receipts with null id
+        this.downloadingReceipt = transaction.id || transaction.request_id
 
         // Get complete transaction details if not already available
         let transactionData = transaction
-        if (!transaction.client_email) {
+        // For generated receipts (id is null), we already have all data
+        // Only fetch if it's a real receipt and missing client_email
+        if (transaction.id && !transaction.client_email) {
           const response = await api.get(`/client/receipts/${transaction.id}`)
           if (response.data.success) {
             transactionData = response.data.data
